@@ -4,16 +4,26 @@ namespace App\Http\Controllers\api\v1\User;
 use Illuminate\Http\Request; 
 use App\Http\Controllers\Controller; 
 use App\User; 
+use App\Post; 
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Hash;
 use Validator;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+//use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Socialite;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Image;
 
 class UserController extends Controller 
 {
 public $successStatus = 200;
-use AuthenticatesUsers;
+    protected $posts;
+
+    public function __construct()
+    {
+        $this->posts =new Post();
+    }
+//use AuthenticatesUsers;
 
     /** 
      * login api 
@@ -21,13 +31,12 @@ use AuthenticatesUsers;
      * @return \Illuminate\Http\Response 
      */ 
     public function login(Request $request){ 
-      //echo 'hi'; die;
             $validator = Validator::make($request->all(), [ 
                 'user_mobile' => 'required|min:11|numeric',
                 'password' => ['required', 'string', 'min:6'],
             ]);
             if ($validator->fails()) { 
-                return response()->json(['error'=>$validator->errors()], 401);  
+                return response()->json(['response'=>$validator->errors()], 401);  
             }
             if(Auth::attempt(['user_mobile' => request('user_mobile'), 'password' => request('password')])){ 
                 $user = Auth::user(); 
@@ -39,7 +48,9 @@ use AuthenticatesUsers;
                 return response()->json(['response' => $response_array], $this-> successStatus); 
             } 
             else{ 
-                return response()->json(['error'=>'Unauthorised'], 401); 
+                $response_array['status']='fail';
+                $response_array['response_message']='There is a problem in logged in';
+                return response()->json(['response'=>$response_array], 401); 
             } 
     }
     /** 
@@ -49,7 +60,6 @@ use AuthenticatesUsers;
      */ 
     public function register(Request $request) 
     { 
-      //echo 'hi'; die;
         $validator = Validator::make($request->all(), [ 
             'user_fname' => ['required', 'string', 'max:255'], 
             'user_lname' => ['required', 'string', 'max:255'],
@@ -57,19 +67,44 @@ use AuthenticatesUsers;
             'password' => ['required', 'string', 'min:6'], 
             'user_mobile' => 'required|min:11|numeric|unique:tbl_user',
             'dob' => 'required',
+            'user_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:1024',
         ]);
         if ($validator->fails()) { 
-            return response()->json(['error'=>$validator->errors()], 401);            
+            return response()->json(['response'=>$validator->errors()], 401);            
         }
         $input = $request->all(); 
+
+
+
+        //$user_image = $input['user_image'];
+        //$extension = $user_image->getClientOriginalExtension();
+        //Storage::disk('public')->put($user_image->getFilename().'.'.$extension,  File::get($user_image));
+      //Storage::disk('public')->put(time().'-'.$user_image->getClientOriginalName(),  File::get($user_image));
+        //$input['mime'] = $user_image->getClientMimeType();
+        //$input['original_filename'] = $user_image->getClientOriginalName();
+      //$input['user_image'] = time().'-'.$user_image->getClientOriginalName();
+        //$input['filename'] = $user_image->getFilename().'.'.$extension;
+
+
+        $user_image = $input['user_image'];
+        $imagename = time().'.'.$user_image->getClientOriginalExtension(); 
+        $destinationPath = public_path('/thumbnail_images');
+        $thumb_img = Image::make($user_image->getRealPath())->resize(100, 100);
+        $thumb_img->save($destinationPath.'/'.$imagename,80);
+                    
+        $destinationPath = public_path('/normal_images');
+        $user_image->move($destinationPath, $imagename);
+        $input['user_image'] = $imagename;
+
+
         $input['password'] = bcrypt($input['password']); 
         $input['user_code'] = $this->generateRandomString(6);// it should be dynamic and unique 
         $user = User::create($input); 
-        $success['token'] =  $user->createToken('mst-app')-> accessToken; 
-        //$success['user_fname'] =  $user->user_fname;
-        //$user = Auth::user(); 
-        $success[] =  $user;
-        return response()->json(['success'=>$success], $this-> successStatus); 
+        $token =  $user->createToken('mst-app')-> accessToken; 
+        $response_array['status']='success';
+        $response_array['response_message']='User successfully Registered.';
+        $response_array['data']=array('token'=>$token,'user_details'=>$user);
+        return response()->json(['response' => $response_array], $this-> successStatus);
     }
 
     /**
@@ -88,7 +123,7 @@ use AuthenticatesUsers;
             'dob' => 'required',
         ]);
         if ($validator->fails()) { 
-                return response()->json(['error'=>$validator->errors()], 401);            
+                return response()->json(['response'=>$validator->errors()], 401);            
         }
         $user = User::find($id);
         //print_r($user); die;
@@ -97,8 +132,12 @@ use AuthenticatesUsers;
         $user->user_lname = $input['user_lname'];
         $user->dob = $input['dob'];
         $user->save();
-        $success[] =  $user;
-        return response()->json(['success'=>$success], $this-> successStatus); 
+        //$success[] =  $user;
+        //return response()->json(['success'=>$success], $this-> successStatus); 
+        $response_array['status']='success';
+        $response_array['response_message']='Successfully User details updated.';
+        $response_array['data']=array('user_details'=>$user);
+        return response()->json(['response' => $response_array], $this-> successStatus);
     }
 
     /** 
@@ -109,24 +148,35 @@ use AuthenticatesUsers;
     public function details() 
     { 
         $user = Auth::user(); 
-        return response()->json(['success' => $user], $this-> successStatus); 
+        //return response()->json(['success' => $user], $this-> successStatus); 
+        $response_array['status']='success';
+        $response_array['data']=array('user_details'=>$user);
+        return response()->json(['response' => $response_array], $this-> successStatus); 
     } 
 
     public function user_details($id) 
     {
         $user = User::find($id);
         if (is_null($user)) {
-            return response()->json(['error'=>'User not found.'], 401); 
+            return response()->json(['response'=>'User not found.'], 401); 
         }
-        return response()->json(['success' => $user], $this-> successStatus);
+        //return response()->json(['success' => $user], $this-> successStatus);
+        $response_array['status']='success';
+        $response_array['data']=array('user_details'=>$user);
+        return response()->json(['response' => $response_array], $this-> successStatus); 
     }
 
     public function logout(Request $request)
     {
-        $success['success'] =  true;
-        $success['message'] =  'Successfully logged out';
+        //$success['success'] =  true;
+       // $success['message'] =  'Successfully logged out';
         $request->User()->token()->revoke();
-        return response()->json(['result'=>$success], $this-> successStatus); 
+        //return response()->json(['result'=>$success], $this-> successStatus); 
+
+        $response_array['status']='success';
+        $response_array['response_message']='Successfully logged out';
+        //$response_array['data']=array('token'=>$token,'user_details'=>$user);
+        return response()->json(['response' => $response_array], $this-> successStatus); 
     }
 
 
@@ -171,6 +221,25 @@ use AuthenticatesUsers;
             $randomString .= $characters[rand(0, $charactersLength - 1)];
         }
         return 'GINI'.$randomString;
+    }
+
+    public function get_posts(){
+      $user = Auth::user(); 
+      //print_r($user);
+      $user_posts = $user->posts ->All();
+      //print_r($user_posts);
+      if($user_posts){
+      $response_array['status']='success';
+      $response_array['data']=array('post_details'=>$user_posts);
+      return response()->json(['response' => $response_array], $this-> successStatus);
+
+      } 
+      else{ 
+          $response_array['status']='fail';
+          $response_array['response_message']='There is no product to show of logged in user.';
+          return response()->json(['response'=>$response_array], 401); 
+      } 
+
     }
 
 }
