@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller; 
 use App\User; 
 use App\Post; 
+use App\Vendor; 
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Hash;
 use Validator;
@@ -17,12 +18,12 @@ use Image;
 class UserController extends Controller 
 {
 public $successStatus = 200;
-    protected $posts;
+protected $posts;
 
-    public function __construct()
-    {
-        $this->posts =new Post();
-    }
+public function __construct()
+{
+    $this->posts =new Post();
+}
 //use AuthenticatesUsers;
 
     /** 
@@ -73,18 +74,6 @@ public $successStatus = 200;
             return response()->json(['response'=>$validator->errors()], 401);            
         }
         $input = $request->all(); 
-
-
-
-        //$user_image = $input['user_image'];
-        //$extension = $user_image->getClientOriginalExtension();
-        //Storage::disk('public')->put($user_image->getFilename().'.'.$extension,  File::get($user_image));
-      //Storage::disk('public')->put(time().'-'.$user_image->getClientOriginalName(),  File::get($user_image));
-        //$input['mime'] = $user_image->getClientMimeType();
-        //$input['original_filename'] = $user_image->getClientOriginalName();
-      //$input['user_image'] = time().'-'.$user_image->getClientOriginalName();
-        //$input['filename'] = $user_image->getFilename().'.'.$extension;
-
 
         $user_image = $input['user_image'];
         $imagename = time().'.'.$user_image->getClientOriginalExtension(); 
@@ -223,7 +212,7 @@ public $successStatus = 200;
         return 'GINI'.$randomString;
     }
 
-    public function get_posts(){
+    public function getPosts(){
       $user = Auth::user(); 
       //print_r($user);
       $user_posts = $user->posts ->All();
@@ -237,6 +226,26 @@ public $successStatus = 200;
       else{ 
           $response_array['status']='fail';
           $response_array['response_message']='There is no product to show of logged in user.';
+          return response()->json(['response'=>$response_array], 401); 
+      } 
+
+    }
+
+
+    public function getVendor(){
+      $user = Auth::user(); 
+      //print_r($user);
+      $user_vendor = $user->vendor ->All();
+      //print_r($user_vendor);
+      if($user_vendor){
+      $response_array['status']='success';
+      $response_array['data']=array('vendor_details'=>$user_vendor);
+      return response()->json(['response' => $response_array], $this-> successStatus);
+
+      } 
+      else{ 
+          $response_array['status']='fail';
+          $response_array['response_message']='This user not belongs to any vendor.';
           return response()->json(['response'=>$response_array], 401); 
       } 
 

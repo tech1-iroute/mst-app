@@ -44,10 +44,12 @@ class User extends Authenticatable
     ];
 
 
-    public function posts()
-        {
-            return $this->hasMany('App\Post', 'uploaded_by_id');
-            
-        }
+    public function posts(){
+        return $this->hasMany('App\Post', 'uploaded_by_id');
+    }
+
+    public function vendor(){
+        return $this->hasOne('App\Vendor', 'mst_id');
+    }
 
 }
