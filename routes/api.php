@@ -26,8 +26,6 @@ Route::get('login/facebook', 'api\v1\User\UserController@redirectToProvider');
 Route::get('login/facebook/callback', 'api\v1\User\UserController@handleProviderCallback');
 
 Route::group(['middleware' => 'auth:api'], function(){
-	//Route::get('login/facebook', 'api\v1\User\UserController@redirectToProvider');
-
 	/* User user_details , user_details_update, logout */
 	Route::get('user/details', 'api\v1\User\UserController@details');
 	Route::get('user/user_details/{id}', 'api\v1\User\UserController@user_details');
@@ -36,6 +34,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('user/getPosts', 'api\v1\User\UserController@getPosts');
 	Route::get('user/getVendor', 'api\v1\User\UserController@getVendor');
 	Route::get('post/feed', 'api\v1\Post\PostController@feed');
+	Route::get('post/profile', 'api\v1\Post\PostController@profile');
+	Route::post('ForgotPassword/email', 'api\v1\ForgotPassword\ForgotPasswordController@postForgetpassword');
 
 });
 
