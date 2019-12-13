@@ -12,6 +12,7 @@ use App\SubCategory;
 use App\CategoryActivity; 
 use App\Customer; 
 use App\UserVendor; 
+use App\PostComments; 
 use Illuminate\Support\Facades\Auth; 
 use Validator;
 use DB;
@@ -42,10 +43,12 @@ public $successStatus = 200;
             $arr['product_interest_new'] = $postValue->product_interest_new;
             $arr['user_interest'] = $postValue->user_interest;
             $arr['store_id'] = $postValue->store_id;
+            $arr['uploaded_by_id'] = $postValue->uploaded_by_id;
             $arr['vendorDetail'] = Vendor::find($postValue->store_id);
             $arr['mainCategory'] = MainCategory::find($arr['product_interest_new']);
             $arr['subCategory'] = SubCategory::find($arr['user_interest']);
             $arr['Activities'] = CategoryActivity::where('interest_id','=',$arr['product_interest_new'])->where('category_id','=',$arr['user_interest'])->orWhere('category_id','=',0)->get(['reason_id','reason_name']);
+            $arr['postComments'] = PostComments::where('cpid','=',$arr['pid'])->get(['comment','user_id']);
             $postArray[]=$arr;
 
           }
@@ -80,10 +83,12 @@ public $successStatus = 200;
             $arr['product_interest_new'] = $postValue->product_interest_new;
             $arr['user_interest'] = $postValue->user_interest;
             $arr['store_id'] = $postValue->store_id;
+            $arr['uploaded_by_id'] = $postValue->uploaded_by_id;
             $arr['vendorDetail'] = Vendor::find($postValue->store_id);
             $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
             $arr['subCategory'] = SubCategory::find($postValue->user_interest);
             $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->get(['reason_id','reason_name']);
+            $arr['postComments'] = PostComments::where('cpid','=',$arr['pid'])->get(['comment','user_id']);
             $postArray[]=$arr;
 
           }

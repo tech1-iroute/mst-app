@@ -35,7 +35,9 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('user/getVendor', 'api\v1\User\UserController@getVendor');
 	Route::get('post/feed', 'api\v1\Post\PostController@feed');
 	Route::get('post/profile', 'api\v1\Post\PostController@profile');
-	Route::post('ForgotPassword/email', 'api\v1\ForgotPassword\ForgotPasswordController@postForgetpassword');
+	Route::post('forgotPassword/email', 'api\v1\ForgotPassword\ForgotPasswordController@userForgetpassword');
+	Route::post('post_comment/store', 'api\v1\Comment\CommentController@store');
+	Route::delete('post_comment/delete/{id}', 'api\v1\Comment\CommentController@destroy');
 
 });
 

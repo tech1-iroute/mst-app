@@ -140,8 +140,7 @@ public function __construct()
         $user->user_lname = $input['user_lname'];
         $user->dob = $input['dob'];
         $user->save();
-        //$success[] =  $user;
-        //return response()->json(['success'=>$success], $this-> successStatus); 
+
         $response_array['status']='success';
         $response_array['response_message']='Successfully User details updated.';
         $response_array['data']=array('user_details'=>$user);
@@ -156,7 +155,6 @@ public function __construct()
     public function details() 
     { 
         $user = Auth::user(); 
-        //return response()->json(['success' => $user], $this-> successStatus); 
         $response_array['status']='success';
         $response_array['data']=array('user_details'=>$user);
         return response()->json(['response' => $response_array], $this-> successStatus); 
@@ -167,23 +165,18 @@ public function __construct()
         $user = User::find($id);
         if (is_null($user)) {
             return response()->json(['response'=>'User not found.'], 401); 
+        } else {
+            $response_array['status']='success';
+            $response_array['data']=array('user_details'=>$user);
+            return response()->json(['response' => $response_array], $this-> successStatus); 
         }
-        //return response()->json(['success' => $user], $this-> successStatus);
-        $response_array['status']='success';
-        $response_array['data']=array('user_details'=>$user);
-        return response()->json(['response' => $response_array], $this-> successStatus); 
     }
 
     public function logout(Request $request)
     {
-        //$success['success'] =  true;
-       // $success['message'] =  'Successfully logged out';
         $request->User()->token()->revoke();
-        //return response()->json(['result'=>$success], $this-> successStatus); 
-
         $response_array['status']='success';
         $response_array['response_message']='Successfully logged out';
-        //$response_array['data']=array('token'=>$token,'user_details'=>$user);
         return response()->json(['response' => $response_array], $this-> successStatus); 
     }
 
@@ -232,16 +225,12 @@ public function __construct()
 
     public function getPosts(){
       $user = Auth::user(); 
-      //print_r($user);
       $user_posts = $user->posts ->All();
-      //print_r($user_posts);
       if($user_posts){
-      $response_array['status']='success';
-      $response_array['data']=array('post_details'=>$user_posts);
-      return response()->json(['response' => $response_array], $this-> successStatus);
-
-      } 
-      else{ 
+          $response_array['status']='success';
+          $response_array['data']=array('post_details'=>$user_posts);
+          return response()->json(['response' => $response_array], $this-> successStatus);
+      } else { 
           $response_array['status']='fail';
           $response_array['response_message']='There is no product to show of logged in user.';
           return response()->json(['response'=>$response_array], 401); 
@@ -256,12 +245,10 @@ public function __construct()
       $user_vendor = $user->vendor ->All();
       //print_r($user_vendor);
       if($user_vendor){
-      $response_array['status']='success';
-      $response_array['data']=array('vendor_details'=>$user_vendor);
-      return response()->json(['response' => $response_array], $this-> successStatus);
-
-      } 
-      else{ 
+          $response_array['status']='success';
+          $response_array['data']=array('vendor_details'=>$user_vendor);
+          return response()->json(['response' => $response_array], $this-> successStatus);
+      } else { 
           $response_array['status']='fail';
           $response_array['response_message']='This user not belongs to any vendor.';
           return response()->json(['response'=>$response_array], 401); 
