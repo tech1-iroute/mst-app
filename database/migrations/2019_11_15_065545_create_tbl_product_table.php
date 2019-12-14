@@ -13,6 +13,7 @@ class CreateTblProductTable extends Migration
      */
     public function up()
     {
+        Schema::dropIfExists('tbl_product');
         Schema::create('tbl_product', function (Blueprint $table) {
             $table->bigIncrements('pid');
             $table->string('prod_name');
@@ -23,7 +24,7 @@ class CreateTblProductTable extends Migration
             $table->date('addDT')->nullable();
             $table->string('date')->nullable();
             $table->integer('uploaded_by_id');
-            $table->foreign('uploaded_by_id')->references('pid')->on('tbl_user');
+            //$table->foreign('uploaded_by_id')->references('pid')->on('tbl_user');
             $table->integer('user_interest')->nullable();
             $table->integer('showInFeed')->nullable();
             $table->string('user_location')->nullable();

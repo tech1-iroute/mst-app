@@ -12,7 +12,8 @@ class CreateTblUserTable extends Migration
      * @return void
      */
     public function up()
-    {
+    {   
+        Schema::dropIfExists('tbl_user');
         Schema::create('tbl_user', function (Blueprint $table) {
             $table->bigIncrements('pid');
             $table->string('user_fname');
