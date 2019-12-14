@@ -125,10 +125,7 @@ public function __construct()
      */
     public function update(Request $request, $id)
     {
-<<<<<<< HEAD
-        //print_r($request->all());die;
-=======
->>>>>>> dev-master
+
         $validator = Validator::make($request->all(), [ 
             'user_fname' => ['required', 'string', 'max:255'], 
             'user_lname' => ['required', 'string', 'max:255'],
