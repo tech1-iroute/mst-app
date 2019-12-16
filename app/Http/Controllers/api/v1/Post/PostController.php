@@ -16,6 +16,7 @@ use App\PostComments;
 use Illuminate\Support\Facades\Auth; 
 use Validator;
 use DB;
+use Carbon\Carbon;
 
 class PostController extends Controller{
 
@@ -38,7 +39,10 @@ public $successStatus = 200;
 
             $arr['pid'] = $postValue->pid;
             $arr['prod_name'] = $postValue->prod_name;
+            $arr['prod_desc'] = $postValue->prod_desc;
             $arr['prod_all_img'] = $postValue->prod_all_img;
+            $date = Carbon::parse($postValue->date); // now date is a carbon instance
+            $arr['date'] = $date->diffForHumans(Carbon::now());
             $arr['prod_url'] = $postValue->prod_url;
             $arr['product_interest_new'] = $postValue->product_interest_new;
             $arr['user_interest'] = $postValue->user_interest;
@@ -47,7 +51,7 @@ public $successStatus = 200;
             $arr['vendorDetail'] = Vendor::find($postValue->store_id);
             $arr['mainCategory'] = MainCategory::find($arr['product_interest_new']);
             $arr['subCategory'] = SubCategory::find($arr['user_interest']);
-            $arr['Activities'] = CategoryActivity::where('interest_id','=',$arr['product_interest_new'])->where('category_id','=',$arr['user_interest'])->orWhere('category_id','=',0)->get(['reason_id','reason_name']);
+            $arr['Activities'] = CategoryActivity::where('interest_id','=',$arr['product_interest_new'])->where('category_id','=',$arr['user_interest'])->orWhere('category_id','=',0)->get(['reason_id','reason_name','icon']);
             $arr['postComments'] = PostComments::where('cpid','=',$arr['pid'])->get(['comment','user_id']);
             $postArray[]=$arr;
 
@@ -78,7 +82,11 @@ public $successStatus = 200;
 
             $arr['pid'] = $postValue->pid;
             $arr['prod_name'] = $postValue->prod_name;
+            $arr['prod_desc'] = $postValue->prod_desc;
             $arr['prod_all_img'] = $postValue->prod_all_img;
+            //$arr['date'] = $postValue->date;
+            $date = Carbon::parse($postValue->date); // now date is a carbon instance
+            $arr['date'] = $date->diffForHumans(Carbon::now());
             $arr['prod_url'] = $postValue->prod_url;
             $arr['product_interest_new'] = $postValue->product_interest_new;
             $arr['user_interest'] = $postValue->user_interest;
@@ -87,15 +95,15 @@ public $successStatus = 200;
             $arr['vendorDetail'] = Vendor::find($postValue->store_id);
             $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
             $arr['subCategory'] = SubCategory::find($postValue->user_interest);
-            $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->get(['reason_id','reason_name']);
-            $arr['postComments'] = PostComments::where('cpid','=',$arr['pid'])->get(['comment','user_id']);
+            $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->get(['reason_id','reason_name','icon']);
+            $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['comment','user_id']);
             $postArray[]=$arr;
 
           }
       
       }
 
-      $response_array['data']=array('post_details'=>$postArray);
+      $response_array['data']=array('feed_heading'=>"Socialtab",'feed_description'=>"Shows you brand posts related to your vendors",'post_details'=>$postArray);
       return response()->json(['response' => $response_array], $this-> successStatus);
 
     }
