@@ -52,4 +52,8 @@ class User extends Authenticatable
         return $this->hasOne('App\Vendor', 'mst_id');
     }
 
+    public function bookmarks(){
+        return $this->hasMany('App\Bookmark', 'user_id');
+    }
+
 }
