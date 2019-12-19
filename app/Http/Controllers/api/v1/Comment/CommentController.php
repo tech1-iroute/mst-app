@@ -26,8 +26,9 @@ class CommentController extends Controller
     	$request->validate([
             'comment'=>'required',
         ]);
-   
         $input = $request->all();
+        $input['cpid'] = $request->input('pid');
+
         $input['user_id'] = Auth::id();
     
         $comments = PostComments::create($input);

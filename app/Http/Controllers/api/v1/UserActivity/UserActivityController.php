@@ -26,15 +26,15 @@ class UserActivityController extends Controller
     {
 
         $input = $request->all();
+        $input['product_id'] = $request->input('pid');
         $input['user_id'] = Auth::id();
         $mytime = Carbon::now();
 		$input['activity_date'] = $mytime->toDateTimeString();
 
-        $UserActivity = UserActivity::where("product_id","=",request('product_id'))->where('user_id','=',$input['user_id'])->first();
+        $UserActivity = UserActivity::where("product_id","=",$input['product_id'])->where('user_id','=',$input['user_id'])->first();
 
         if ($UserActivity) {
-
-            $DeleteUserActivity=UserActivity::where("product_id","=",request('product_id'))->where('user_id','=',$input['user_id'])->delete();
+            $DeleteUserActivity=UserActivity::where("product_id","=",$input['product_id'])->where('user_id','=',$input['user_id'])->delete();
         }
         $activity = UserActivity::create($input);
         $response_array['status']='success';
