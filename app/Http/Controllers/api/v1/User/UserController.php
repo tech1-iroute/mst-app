@@ -40,7 +40,6 @@ public function __construct()
     public function login(Request $request){ 
 
         $validator = Validator::make($request->all(), [ 
-            //'user_mobile' => 'required|min:11|numeric',
             'user_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
             'password' => ['required', 'string', 'min:6'],
         ]);
@@ -96,8 +95,10 @@ public function __construct()
           return response()->json(['response'=>$validator->errors()], 401);            
         }
         $input = $request->all(); 
+
         $user_image = $input['user_image'];
         $imagename = time().'.'.$user_image->getClientOriginalExtension(); 
+
         $destinationPath = public_path('/thumbnail_images');
         $thumb_img = Image::make($user_image->getRealPath())->resize(100, 100);
         $thumb_img->save($destinationPath.'/'.$imagename,80);
@@ -105,6 +106,7 @@ public function __construct()
         $destinationPath = public_path('/normal_images');
         $user_image->move($destinationPath, $imagename);
         $input['user_image'] = $imagename;
+        //$input['user_image'] = public_path('/thumbnail_images/' . $imagename);
 
         $input['password'] = bcrypt($input['password']); 
         $input['user_code'] = $this->generateRandomString(6);// it should be dynamic and unique 

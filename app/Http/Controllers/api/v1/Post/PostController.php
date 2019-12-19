@@ -52,7 +52,7 @@ public $successStatus = 200;
             $arr['vendorDetail'] = Vendor::find($postValue->store_id);
             $arr['mainCategory'] = MainCategory::find($arr['product_interest_new']);
             $arr['subCategory'] = SubCategory::find($arr['user_interest']);
-            $arr['Activities'] = CategoryActivity::where('interest_id','=',$arr['product_interest_new'])->where('category_id','=',$arr['user_interest'])->orWhere('category_id','=',0)->get(['reason_id','reason_name','icon']);
+            $arr['Activities'] = CategoryActivity::where('interest_id','=',$arr['product_interest_new'])->where('category_id','=',$arr['user_interest'])->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id']);
             $arr['postComments'] = PostComments::where('cpid','=',$arr['pid'])->get(['cid','comment','user_id']);
             $postArray[]=$arr;
 
@@ -96,7 +96,7 @@ public $successStatus = 200;
             $arr['vendorDetail'] = Vendor::find($postValue->store_id);
             $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
             $arr['subCategory'] = SubCategory::find($postValue->user_interest);
-            $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->get(['reason_id','reason_name','icon']);
+            $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id']);
             $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
             $postArray[]=$arr;
 
