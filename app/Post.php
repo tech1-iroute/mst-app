@@ -20,24 +20,18 @@ class Post extends Model
 
     public function user(){
          return $this->belongsTo('App\User');
-     }
+    }
 
     public function vendor(){
          return $this->belongsTo('App\User');
-     }
+    }
 
     public function postMainCategory(){
         return $this->hasOne('App\MainCategory', 'interest_id');
     }
-
-    /**
-     * The has Many Relationship
-     *
-     * @var array
-     */
+    
     public function comments()
     {
-        //return $this->hasMany(Comment::class)->whereNull('parent_id');
         return $this->hasMany('App\PostComments', 'cpid');
     }
      
