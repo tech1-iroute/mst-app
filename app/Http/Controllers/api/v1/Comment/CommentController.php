@@ -28,7 +28,6 @@ class CommentController extends Controller
         ]);
         $input = $request->all();
         $input['cpid'] = $request->input('pid');
-
         $input['user_id'] = Auth::id();
     
         $comments = PostComments::create($input);
@@ -36,6 +35,20 @@ class CommentController extends Controller
         $response_array['response_message']='Comment done Successfully.';
         $response_array['data']=array('post_comment'=>$comments);
         return response()->json(['response' => $response_array], $this-> successStatus);
+    }
+
+
+    public function show($id) 
+    {
+        //$user_id = Auth::id();
+        $post_comment =PostComments::where('cpid','=',$id)->get(['cid','comment','user_id']);
+        if (is_null($post_comment)) {
+            return response()->json(['response'=>'Post Comment not found.'], 401); 
+        } else {
+            $response_array['status']='success';
+            $response_array['data']=array('post_comment'=>$post_comment);
+            return response()->json(['response' => $response_array], $this-> successStatus); 
+        }
     }
 
 

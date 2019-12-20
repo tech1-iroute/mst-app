@@ -9,6 +9,7 @@ use App\Vendor;
 use App\MainCategory; 
 use App\SubCategory; 
 use App\CategoryActivity; 
+use App\GiftPreference; 
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Hash;
 use Validator;
@@ -80,8 +81,7 @@ public function __construct()
      * 
      * @return \Illuminate\Http\Response 
      */ 
-    public function register(Request $request) 
-    { 
+    public function register(Request $request) { 
         $validator = Validator::make($request->all(), [ 
           'user_fname' => ['required', 'string', 'max:255'], 
           'user_lname' => ['required', 'string', 'max:255'],
@@ -125,9 +125,7 @@ public function __construct()
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
-    {
-
+    public function update(Request $request, $id){
         $validator = Validator::make($request->all(), [ 
             'user_fname' => ['required', 'string', 'max:255'], 
             'user_lname' => ['required', 'string', 'max:255'],
@@ -155,16 +153,14 @@ public function __construct()
      * 
      * @return \Illuminate\Http\Response 
      */ 
-    public function details() 
-    { 
+    public function details() { 
         $user = Auth::user(); 
         $response_array['status']='success';
         $response_array['data']=array('user_details'=>$user);
         return response()->json(['response' => $response_array], $this-> successStatus); 
     } 
 
-    public function user_details($id) 
-    {
+    public function user_details($id){
         $user = User::find($id);
         if (is_null($user)) {
             return response()->json(['response'=>'User not found.'], 401); 
@@ -175,8 +171,7 @@ public function __construct()
         }
     }
 
-    public function logout(Request $request)
-    {
+    public function logout(Request $request){
         $request->User()->token()->revoke();
         $response_array['status']='success';
         $response_array['response_message']='Successfully logged out';
@@ -184,23 +179,13 @@ public function __construct()
     }
 
 
-    /**
-     * Redirect the user to the facebook authentication page.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function redirectToProvider()
-    {
+    public function redirectToProvider(){
         return  Socialite::driver('facebook')->redirect();
     }
 
-    /**
-     * Obtain the user information from facebook.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function handleProviderCallback()
-    {
+   
+    public function handleProviderCallback(){
+
         $facebookUser = Socialite::driver('facebook')->stateless()->user();
         $user = User::where('facebook_id',$facebookUser->facebook_id())->first();
         if(!$user){
@@ -241,6 +226,28 @@ public function __construct()
 
     }
 
+
+    public function userGiftPreference(){
+       $final = array();
+       $user_id = Auth::id();
+       $user_gift_reference = User::where('pid','=',$user_id)->get(['user_like']);
+       $user_gift_reference_new = explode(',', $user_gift_reference);
+       $all_gift_references = GiftPreference::orderBy('preferences_id')->get();
+       foreach($all_gift_references as $gift_references){
+
+        if (in_array($gift_references->preferences_id, $user_gift_reference_new)) {
+           $arr = ['preferences_id'=>$gift_references->preferences_id,'preferences_name'=>$gift_references->preferences_name,'preferences_image'=>$gift_references->preferences_image,'avtive'=>'yes'];
+         } else {
+           $arr = ['preferences_id'=>$gift_references->preferences_id,'preferences_name'=>$gift_references->preferences_name,'preferences_image'=>$gift_references->preferences_image,'avtive'=>'no'];
+         }
+
+         $final[]=$arr;
+
+       }
+
+        $response_array['data']=array('user_gift_preference'=>$final);
+        return response()->json(['response' => $response_array], $this-> successStatus);
+      }
 
     public function getVendor(){
       $user = Auth::user(); 
