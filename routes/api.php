@@ -39,10 +39,12 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('post/profile', 'api\v1\Post\PostController@profile');
 	Route::post('forgotPassword/email', 'api\v1\ForgotPassword\ForgotPasswordController@userForgetpassword');
 	Route::post('post_comment/store', 'api\v1\Comment\CommentController@store');
+	Route::get('post_comment/show/{id}', 'api\v1\Comment\CommentController@show');
 	Route::delete('post_comment/delete/{id}', 'api\v1\Comment\CommentController@destroy');
 
 	Route::get('user/bookmark_details', 'api\v1\Bookmark\BookmarkController@show');
 	Route::post('post_user_activity/store', 'api\v1\UserActivity\UserActivityController@store');
+	Route::get('user/gift_preference', 'api\v1\User\UserController@userGiftPreference');
 
 });
 
