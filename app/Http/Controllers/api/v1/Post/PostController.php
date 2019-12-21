@@ -96,14 +96,14 @@ public $successStatus = 200;
             $arr['vendorDetail'] = Vendor::find($postValue->store_id);
             $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
             $arr['subCategory'] = SubCategory::find($postValue->user_interest);
-<<<<<<< HEAD
+
             $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id']);
             $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
-=======
+
             $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
             
-            //$arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
->>>>>>> dev-master
+            $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
+
             $postArray[]=$arr;
 
           }
