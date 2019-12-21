@@ -26,7 +26,6 @@ Route::get('login/facebook', 'api\v1\User\UserController@redirectToProvider');
 Route::get('login/facebook/callback', 'api\v1\User\UserController@handleProviderCallback');
 
 Route::group(['middleware' => 'auth:api'], function(){
-	/* User user_details , user_details_update, logout */
 
 	Route::get('user/details', 'api\v1\User\UserController@details');
 	Route::get('user/user_details/{id}', 'api\v1\User\UserController@user_details');
