@@ -22,8 +22,7 @@ class UserActivityController extends Controller
 {
     public $successStatus = 200;
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         
         $input = $request->all();
         
