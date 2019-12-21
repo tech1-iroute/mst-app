@@ -24,8 +24,9 @@ class UserActivityController extends Controller
 
     public function store(Request $request)
     {
-
+        
         $input = $request->all();
+        
         $input['product_id'] = $request->input('pid');
         $input['user_id'] = Auth::id();
         $mytime = Carbon::now();

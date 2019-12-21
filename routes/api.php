@@ -31,6 +31,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('user/user_details/{id}', 'api\v1\User\UserController@user_details');
 	Route::put('user/update/{id}', 'api\v1\User\UserController@update');
 	Route::get('user/logout', 'api\v1\User\UserController@logout');
+
 	Route::get('user/getPosts', 'api\v1\User\UserController@getPosts');
 	Route::get('user/getVendor', 'api\v1\User\UserController@getVendor');
 
