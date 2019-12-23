@@ -25,14 +25,11 @@ class UserActivityController extends Controller
     public function store(Request $request){
         
         $input = $request->all();
-        
         $input['product_id'] = $request->input('pid');
         $input['user_id'] = Auth::id();
         $mytime = Carbon::now();
 		$input['activity_date'] = $mytime->toDateTimeString();
-
         $UserActivity = UserActivity::where("product_id","=",$input['product_id'])->where('user_id','=',$input['user_id'])->first();
-
         if ($UserActivity) {
             $DeleteUserActivity=UserActivity::where("product_id","=",$input['product_id'])->where('user_id','=',$input['user_id'])->delete();
         }
@@ -41,5 +38,6 @@ class UserActivityController extends Controller
         $response_array['response_message']='Activity done Successfully.';
         $response_array['data']=array('activity_status'=>'checked');
         return response()->json(['response' => $response_array], $this-> successStatus);
+        
     }
 }

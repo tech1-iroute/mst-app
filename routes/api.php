@@ -44,7 +44,9 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 	Route::get('user/bookmark_details', 'api\v1\Bookmark\BookmarkController@show');
 	Route::post('post_user_activity/store', 'api\v1\UserActivity\UserActivityController@store');
+
 	Route::get('user/gift_preference', 'api\v1\User\UserController@userGiftPreference');
+	Route::put('user/update_gift_preference/{id}', 'api\v1\User\UserController@updateUserGiftPreference');
 
 });
 

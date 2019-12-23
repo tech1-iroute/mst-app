@@ -15,9 +15,8 @@ use Illuminate\Support\Facades\Hash;
 use Validator;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Socialite;
-//use Illuminate\Support\Facades\Storage;
-//use Illuminate\Support\Facades\File;
 use Image;
+use Illuminate\Support\Arr;
 
 class UserController extends Controller 
 {
@@ -33,11 +32,6 @@ public function __construct()
 }
 //use AuthenticatesUsers;
 
-    /** 
-     * login api 
-     * 
-     * @return \Illuminate\Http\Response 
-     */ 
     public function login(Request $request){ 
 
         $validator = Validator::make($request->all(), [ 
@@ -76,11 +70,7 @@ public function __construct()
             return response()->json(['response'=>$response_array], 401); 
         } 
     }
-    /** 
-     * Register api 
-     * 
-     * @return \Illuminate\Http\Response 
-     */ 
+
     public function register(Request $request) { 
         $validator = Validator::make($request->all(), [ 
           'user_fname' => ['required', 'string', 'max:255'], 
@@ -106,7 +96,6 @@ public function __construct()
         $destinationPath = public_path('/normal_images');
         $user_image->move($destinationPath, $imagename);
         $input['user_image'] = $imagename;
-        //$input['user_image'] = public_path('/thumbnail_images/' . $imagename);
 
         $input['password'] = bcrypt($input['password']); 
         $input['user_code'] = $this->generateRandomString(6);// it should be dynamic and unique 
@@ -118,13 +107,6 @@ public function __construct()
         return response()->json(['response' => $response_array], $this-> successStatus);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id){
         $validator = Validator::make($request->all(), [ 
             'user_fname' => ['required', 'string', 'max:255'], 
@@ -135,7 +117,6 @@ public function __construct()
           return response()->json(['response'=>$validator->errors()], 401);            
         }
         $user = User::find($id);
-        //print_r($user); die;
         $input = $request->all();
         $user->user_fname = $input['user_fname'];
         $user->user_lname = $input['user_lname'];
@@ -148,11 +129,6 @@ public function __construct()
         return response()->json(['response' => $response_array], $this-> successStatus);
     }
 
-    /** 
-     * details api 
-     * 
-     * @return \Illuminate\Http\Response 
-     */ 
     public function details() { 
         $user = Auth::user(); 
         $response_array['status']='success';
@@ -185,7 +161,6 @@ public function __construct()
 
    
     public function handleProviderCallback(){
-
         $facebookUser = Socialite::driver('facebook')->stateless()->user();
         $user = User::where('facebook_id',$facebookUser->facebook_id())->first();
         if(!$user){
@@ -226,29 +201,6 @@ public function __construct()
 
     }
 
-
-    public function userGiftPreference(){
-       $final = array();
-       $user_id = Auth::id();
-       $user_gift_reference = User::where('pid','=',$user_id)->get(['user_like']);
-       $user_gift_reference_new = explode(',', $user_gift_reference);
-       $all_gift_references = GiftPreference::orderBy('preferences_id')->get();
-       foreach($all_gift_references as $gift_references){
-
-        if (in_array($gift_references->preferences_id, $user_gift_reference_new)) {
-           $arr = ['preferences_id'=>$gift_references->preferences_id,'preferences_name'=>$gift_references->preferences_name,'preferences_image'=>$gift_references->preferences_image,'avtive'=>'yes'];
-         } else {
-           $arr = ['preferences_id'=>$gift_references->preferences_id,'preferences_name'=>$gift_references->preferences_name,'preferences_image'=>$gift_references->preferences_image,'avtive'=>'no'];
-         }
-
-         $final[]=$arr;
-
-       }
-
-        $response_array['data']=array('user_gift_preference'=>$final);
-        return response()->json(['response' => $response_array], $this-> successStatus);
-      }
-
     public function getVendor(){
       $user = Auth::user(); 
       //print_r($user);
@@ -266,12 +218,54 @@ public function __construct()
 
     }
 
-
-
     protected function hasTooManyLoginAttempts(Request $request) {
-
         return $this->limiter()->tooManyAttempts($this->throttleKey($request), $this->maxAttempts, $this->decayMinutes);
-
     }
+
+    public function userGiftPreference(){
+       $final = array();
+       $user_id = Auth::id();
+       $user_gift_reference = User::where('pid','=',$user_id)->get(['user_like'])->toArray();
+       $user_gift_reference_new = explode(',', $user_gift_reference[0]['user_like']);
+       $all_gift_references = GiftPreference::orderBy('preferences_id')->get();
+       foreach($all_gift_references as $gift_references){
+        if (in_array($gift_references->preferences_id, $user_gift_reference_new)) {
+           $arr = ['preferences_id'=>$gift_references->preferences_id,'preferences_name'=>$gift_references->preferences_name,'preferences_image'=>$gift_references->preferences_image,'avtive'=>'yes'];
+         } else {
+           $arr = ['preferences_id'=>$gift_references->preferences_id,'preferences_name'=>$gift_references->preferences_name,'preferences_image'=>$gift_references->preferences_image,'avtive'=>'no'];
+         }
+         $final[]=$arr;
+       }
+        $response_array['data']=array('user_gift_preference'=>$final);
+        return response()->json(['response' => $response_array], $this-> successStatus);
+      }
+
+      public function updateUserGiftPreference($id){
+
+        $final = array();
+        $user_id = Auth::id();
+        $user_gift_reference = User::where('pid','=',$user_id)->get(['user_like'])->toArray();
+        $user_gift_reference_new = explode(',', $user_gift_reference[0]['user_like']);
+        if (in_array($id, $user_gift_reference_new)) {
+          $result = $this->removeElement($user_gift_reference_new,$id);
+        } else {
+          $result = Arr::prepend($user_gift_reference_new, $id);
+        }
+        $finalResult= implode(',', $result);
+        $UpdateDetails = User::where('pid', $user_id)->update([
+           'user_like' => $finalResult
+        ]);
+        $response_array['status']='success';
+        $response_array['response_message']='Gift Preference updated Successfully.';
+        return response()->json(['response' => $response_array], $this-> successStatus);
+      }
+
+    /*Remove an element from given Array*/
+      public function removeElement($array,$value) {
+         if (($key = array_search($value, $array)) !== false) {
+           unset($array[$key]);
+         }
+        return $array;
+      }
 
 }
