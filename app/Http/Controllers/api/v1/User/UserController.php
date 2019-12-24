@@ -96,6 +96,7 @@ public function __construct()
         $destinationPath = public_path('/normal_images');
         $user_image->move($destinationPath, $imagename);
         $input['user_image'] = $imagename;
+        //$input['user_image'] = '/public/thumbnail_images/'.$imagename;
 
         $input['password'] = bcrypt($input['password']); 
         $input['user_code'] = $this->generateRandomString(6);// it should be dynamic and unique 
@@ -112,15 +113,31 @@ public function __construct()
             'user_fname' => ['required', 'string', 'max:255'], 
             'user_lname' => ['required', 'string', 'max:255'],
             'dob' => 'required',
+            'city_home' => 'required',
+            'MaritalStatus' => 'required',
         ]);
         if ($validator->fails()) { 
           return response()->json(['response'=>$validator->errors()], 401);            
         }
         $user = User::find($id);
         $input = $request->all();
+
+        /*$user_image = $input['user_image'];
+        $imagename = time().'.'.$user_image->getClientOriginalExtension(); 
+        $destinationPath = public_path('/thumbnail_images');
+        $thumb_img = Image::make($user_image->getRealPath())->resize(100, 100);
+        $thumb_img->save($destinationPath.'/'.$imagename,80);         
+        $destinationPath = public_path('/normal_images');
+        $user_image->move($destinationPath, $imagename);
+        //$input['user_image'] = $imagename;
+        $input['user_image'] = '/public/thumbnail_images/'.$imagename ;*/
+
         $user->user_fname = $input['user_fname'];
         $user->user_lname = $input['user_lname'];
         $user->dob = $input['dob'];
+        $user->city_home = $input['city_home'];
+        $user->MaritalStatus = $input['MaritalStatus'];
+        //$user->user_image = $input['user_image'];
         $user->save();
 
         $response_array['status']='success';
@@ -203,9 +220,7 @@ public function __construct()
 
     public function getVendor(){
       $user = Auth::user(); 
-      //print_r($user);
       $user_vendor = $user->vendor ->All();
-      //print_r($user_vendor);
       if($user_vendor){
           $response_array['status']='success';
           $response_array['data']=array('vendor_details'=>$user_vendor);
@@ -227,6 +242,7 @@ public function __construct()
        $user_id = Auth::id();
        $user_gift_reference = User::where('pid','=',$user_id)->get(['user_like'])->toArray();
        $user_gift_reference_new = explode(',', $user_gift_reference[0]['user_like']);
+       //print_r($user_gift_reference_new);
        $all_gift_references = GiftPreference::orderBy('preferences_id')->get();
        foreach($all_gift_references as $gift_references){
         if (in_array($gift_references->preferences_id, $user_gift_reference_new)) {
@@ -267,5 +283,61 @@ public function __construct()
          }
         return $array;
       }
+
+
+      public function userInterests(){
+       $final = array();
+       $main_category_details = array();
+       $user_id = Auth::id();
+       $user_interest = User::where('pid','=',$user_id)->get(['user_interest'])->toArray();
+       $user_interest_new = explode(',', $user_interest[0]['user_interest']);
+
+       $user_main_category = MainCategory::orderBy('interest_id')->get();
+
+       $arr = array();
+        foreach($user_main_category as $main_category){
+
+         $all_user_interest = SubCategory::where('parentId','=',$main_category['interest_id'])->orderBy('interest_id')->get();
+
+         foreach($all_user_interest as $user_interests){
+
+          $arr['main_category_details'] = $main_category['interestName'];
+
+          if (in_array($user_interests->interest_id, $user_interest_new)) {
+             $arr['all_user_interest_details'] = ['interest_id'=>$user_interests->interest_id,'interest_name'=>$user_interests->interest_name,'interest_image'=>$user_interests->interest_image,'parentId'=>$user_interests->parentId,'sub_category_id'=>$user_interests->sub_category_id,'status'=>$user_interests->status,'avtive'=>'yes'];
+           } else {
+             $arr['all_user_interest_details'] = ['interest_id'=>$user_interests->interest_id,'interest_name'=>$user_interests->interest_name,'interest_image'=>$user_interests->interest_image,'parentId'=>$user_interests->parentId,'sub_category_id'=>$user_interests->sub_category_id,'status'=>$user_interests->status,'avtive'=>'no'];
+           }
+
+           $final[]=$arr;
+
+         }
+
+        }
+        $response_array['data']=array('user_interest_details'=>$final);
+        return response()->json(['response' => $response_array], $this-> successStatus);
+      }
+
+
+      public function updateUserInterests($id){
+
+        $final = array();
+        $user_id = Auth::id();
+        $user_interest = User::where('pid','=',$user_id)->get(['user_interest'])->toArray();
+        $user_interest_new = explode(',', $user_interest[0]['user_interest']);
+        if (in_array($id, $user_interest_new)) {
+          $result = $this->removeElement($user_interest_new,$id);
+        } else {
+          $result = Arr::prepend($user_interest_new, $id);
+        }
+        $finalResult= implode(',', $result);
+        $UpdateDetails = User::where('pid', $user_id)->update([
+           'user_interest' => $finalResult
+        ]);
+        $response_array['status']='success';
+        $response_array['response_message']='User Interest updated Successfully.';
+        return response()->json(['response' => $response_array], $this-> successStatus);
+      }
+
 
 }

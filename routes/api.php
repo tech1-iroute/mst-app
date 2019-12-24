@@ -48,6 +48,9 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('user/gift_preference', 'api\v1\User\UserController@userGiftPreference');
 	Route::put('user/update_gift_preference/{id}', 'api\v1\User\UserController@updateUserGiftPreference');
 
+	Route::get('user/interest', 'api\v1\User\UserController@userInterests');
+	Route::put('user/update_interest/{id}', 'api\v1\User\UserController@updateUserInterests');
+
 });
 
 
