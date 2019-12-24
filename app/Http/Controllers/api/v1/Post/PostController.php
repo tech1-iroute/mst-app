@@ -74,11 +74,12 @@ public $successStatus = 200;
       $userId = Auth::id();
       $postArray = array();
       $userVendor = UserVendor::where('user_id','=',$userId)->distinct()->get(['customer_id','vendor_id']);
-
+      $offset = 0;
+      $limit = 5;
       foreach($userVendor as $value){
 
           $vendorId = $value->vendor_id;
-          $postDetails = $post->where('store_id', $vendorId)->get(); 
+          $postDetails = $post->where('store_id', $vendorId)->limit($limit)->offset($offset)->get(); 
           $arr = array();
 
           foreach($postDetails as $postValue){

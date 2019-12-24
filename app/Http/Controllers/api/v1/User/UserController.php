@@ -173,6 +173,7 @@ public function __construct()
 
 
     public function redirectToProvider(){
+      echo "hi"; die;
         return  Socialite::driver('facebook')->redirect();
     }
 
@@ -189,8 +190,11 @@ public function __construct()
               //'provider_id' => $user->id,
             ]);
         }
-        $success[] =  $user;
-        return response()->json(['success'=>$success], $this-> successStatus); 
+        /*$success[] =  $user;
+        return response()->json(['success'=>$success], $this-> successStatus);*/ 
+        $response_array['status']='success';
+        $response_array['data']=array('user_details'=>$user);
+        return response()->json(['response' => $response_array], $this-> successStatus);
     }
 
     public  function generateRandomString($length = 20) {
