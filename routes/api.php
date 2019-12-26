@@ -25,6 +25,11 @@ Route::get('login/facebook', 'api\v1\User\UserController@redirectToProvider');
 // Route::get('login/facebook', function(){echo 'Hello';die;});
 Route::get('login/facebook/callback', 'api\v1\User\UserController@handleProviderCallback');
 
+
+Route::post('forgotPassword/email', 'api\v1\ForgotPassword\ForgotPasswordController@userForgetpassword');
+Route::post('password/email', 'api\v1\ForgotPassword\ForgotPasswordController@getResetToken');
+Route::post('password/reset', 'api\v1\ResetPassword\ResetPasswordController@reset');
+
 Route::group(['middleware' => 'auth:api'], function(){
 
 	Route::get('user/details', 'api\v1\User\UserController@details');
@@ -35,9 +40,9 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('user/getPosts', 'api\v1\User\UserController@getPosts');
 	Route::get('user/getVendor', 'api\v1\User\UserController@getVendor');
 
-	Route::get('post/feed', 'api\v1\Post\PostController@feed');
+	Route::post('post/feed', 'api\v1\Post\PostController@feed');
 	Route::get('post/profile', 'api\v1\Post\PostController@profile');
-	Route::post('forgotPassword/email', 'api\v1\ForgotPassword\ForgotPasswordController@userForgetpassword');
+
 	Route::post('post_comment/store', 'api\v1\Comment\CommentController@store');
 	Route::get('post_comment/show/{id}', 'api\v1\Comment\CommentController@show');
 	Route::delete('post_comment/delete/{id}', 'api\v1\Comment\CommentController@destroy');

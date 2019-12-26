@@ -67,19 +67,25 @@ public $successStatus = 200;
 
     }
 
-     public function feed(){
+     public function feed(Request $request){
 
       $post = new Post();
       $user = Auth::user(); 
       $userId = Auth::id();
       $postArray = array();
       $userVendor = UserVendor::where('user_id','=',$userId)->distinct()->get(['customer_id','vendor_id']);
-      $offset = 0;
-      $limit = 5;
+      $input = $request->all(); 
+      $perPage = 5;
+
+      if ($input['page'] == "") {
+          $skip = 0;
+      } else {
+          $skip = $perPage * $input['page'];
+      }
       foreach($userVendor as $value){
 
           $vendorId = $value->vendor_id;
-          $postDetails = $post->where('store_id', $vendorId)->limit($limit)->offset($offset)->get(); 
+          $postDetails = $post->where('store_id', $vendorId)->skip($skip)->take($perPage)->get(); 
           $arr = array();
 
           foreach($postDetails as $postValue){
