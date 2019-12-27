@@ -173,7 +173,7 @@ public function __construct()
 
 
     public function redirectToProvider(){
-      echo "hi"; die;
+      //echo "hi"; die;
         return  Socialite::driver('facebook')->redirect();
     }
 
