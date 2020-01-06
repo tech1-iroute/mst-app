@@ -68,8 +68,6 @@ public $successStatus = 200;
     }
 
      public function feed($page=1){
-      //echo $page; die;
-
       $post = new Post();
       $user = Auth::user(); 
       $userId = Auth::id();
@@ -100,6 +98,13 @@ public $successStatus = 200;
           $arr['prod_name'] = $postValue->prod_name;
           $arr['prod_desc'] = $postValue->prod_desc;
           $arr['prod_all_img'] = $postValue->prod_all_img;
+          if ($postValue->prod_status == 'B') { 
+              $arr['prod_status'] ="Sponsored";
+          } else if ($postValue->prod_status == 'S') {
+              $arr['prod_status'] ="System Generated";
+          } else {
+              $arr['prod_status'] ="User Generated";
+          }
           $date = Carbon::parse($postValue->date); // now date is a carbon instance
           $arr['date'] = $date->diffForHumans(Carbon::now());
           $arr['prod_url'] = $postValue->prod_url;
@@ -118,6 +123,80 @@ public $successStatus = 200;
 
         }
             $response_array['data']=array('feed_heading'=>"Socialtab",'feed_description'=>"Shows you brand posts related to your vendors",'post_details'=>$postArray);
+            return response()->json(['response' => $response_array], $this-> successStatus);
+
+    }
+
+
+
+    public function feed_single_detail_page(Request $request, $post_id){
+      $post = new Post();
+      $user = Auth::user(); 
+      $userId = Auth::id();
+      $postArray = array();
+      $relatedPostArray = array();
+  
+        $postDetails = $post->where('pid',$post_id)->get(); 
+        $postCount = count($postDetails);
+        $arr = array();
+        foreach($postDetails as $postValue){
+
+          $arr['pid'] = $postValue->pid;
+          $arr['prod_name'] = $postValue->prod_name;
+          $arr['prod_desc'] = $postValue->prod_desc;
+          $arr['prod_all_img'] = $postValue->prod_all_img;
+          if ($postValue->prod_status == 'B') { 
+              $arr['prod_status'] ="Sponsored";
+          } else if ($postValue->prod_status == 'S') {
+              $arr['prod_status'] ="System Generated";
+          } else {
+              $arr['prod_status'] ="User Generated";
+          }
+          $arr['clicks'] = $postValue->clicks;
+          $date = Carbon::parse($postValue->date); // now date is a carbon instance
+          $arr['date'] = $date->diffForHumans(Carbon::now());
+          $arr['prod_url'] = $postValue->prod_url;
+          $arr['product_interest_new'] = $postValue->product_interest_new;
+          $arr['user_interest'] = $postValue->user_interest;
+          $arr['store_id'] = $postValue->store_id;
+          $arr['uploaded_by_id'] = $postValue->uploaded_by_id;
+          $arr['vendorDetail'] = Vendor::find($postValue->store_id);
+          $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
+          $arr['subCategory'] = SubCategory::find($postValue->user_interest);
+          
+          $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
+          
+          $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
+          $arr['postCommentsCount'] = count($arr['postComments']);
+          $postArray[]=$arr;
+
+        }
+
+        $relatedPostDetails = $post->where('pid','!=',$post_id)->where('store_id',$arr['store_id'])->get(); 
+        $relatedPostCount = count($relatedPostDetails);
+        $relatedArr = array();
+        foreach($relatedPostDetails as $relatedPostValue){
+
+          $relatedArr['pid'] = $relatedPostValue->pid;
+          $relatedArr['prod_name'] = $relatedPostValue->prod_name;
+          $relatedArr['prod_desc'] = $relatedPostValue->prod_desc;
+          $relatedArr['prod_all_img'] = $relatedPostValue->prod_all_img;
+          //$relatedArr['clicks'] = $relatedPostValue->clicks;
+          $date = Carbon::parse($relatedPostValue->date); // now date is a carbon instance
+          $relatedArr['date'] = $date->diffForHumans(Carbon::now());
+          $relatedArr['prod_url'] = $relatedPostValue->prod_url;
+          $relatedArr['product_interest_new'] = $relatedPostValue->product_interest_new;
+          $relatedArr['user_interest'] = $relatedPostValue->user_interest;
+          $relatedArr['store_id'] = $relatedPostValue->store_id;
+          $relatedArr['uploaded_by_id'] = $relatedPostValue->uploaded_by_id;
+          //$relatedArr['vendorDetail'] = Vendor::find($relatedPostValue->store_id);
+          //$relatedArr['mainCategory'] = MainCategory::find($relatedPostValue->product_interest_new);
+          $relatedArr['subCategory'] = SubCategory::find($relatedPostValue->user_interest);
+         
+          $relatedPostArray[]=$relatedArr;
+
+        }
+            $response_array['data']=array('single_post_details'=>$postArray, 'related_post'=>$relatedPostArray);
             return response()->json(['response' => $response_array], $this-> successStatus);
 
     }
