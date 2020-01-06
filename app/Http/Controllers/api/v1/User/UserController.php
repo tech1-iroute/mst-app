@@ -10,6 +10,7 @@ use App\MainCategory;
 use App\SubCategory; 
 use App\CategoryActivity; 
 use App\GiftPreference; 
+use App\SendOTP;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Hash;
 use Validator;
@@ -57,7 +58,10 @@ public function __construct()
 
             if ($this->hasTooManyLoginAttempts($request)) {
                   $this->fireLockoutEvent($request);
-                  return response()->json(['response'=>'Too many login attempts. Please try again in 1 minute.'], 401);
+                  //return response()->json(['response'=>'Too many login attempts. Please try again in 1 minute.'], 401);
+                  $response_array['status']='fail';
+                  $response_array['response_message']='Too many login attempts. Please try again in 1 minute';
+                  return response()->json(['response'=>$response_array], 401);
             }
 
             $this->incrementLoginAttempts($request);
@@ -342,6 +346,94 @@ public function __construct()
         $response_array['response_message']='User Interest updated Successfully.';
         return response()->json(['response' => $response_array], $this-> successStatus);
       }
+
+
+      /**
+      * Sending the OTP.
+      *
+      * @return Response
+      */
+      public function sendOtp(Request $request){
+
+          $response_array = array();
+          $userId = Auth::user()->pid;
+
+          $users = User::where('pid', $userId)->first();
+
+          if ( isset($users['user_mobile']) && $users['user_mobile'] =="" ) {
+              $response_array['error'] = 1;
+              $response_array['message'] = 'Invalid mobile number';
+              $response_array['loggedIn'] = 1;
+          } else {
+
+              $otp = rand(100000, 999999);
+              $MSG91 = new MSG91();
+
+              $msg91Response = $MSG91->sendSMS($otp,$users['user_mobile']);
+
+              if($msg91Response['error']){
+                  $response_array['error'] = 1;
+                  $response_array['message'] = $msg91Response['message'];
+                  $response_array['loggedIn'] = 1;
+              }else{
+
+                  Session::put('OTP', $otp);
+
+                  $response_array['error'] = 0;
+                  $response_array['message'] = 'Your OTP is created.';
+                  $response_array['OTP'] = $otp;
+                  $response_array['loggedIn'] = 1;
+              }
+          }
+          //echo json_encode($response);
+          return response()->json(['response' => $response_array], $this-> successStatus);
+      }
+
+
+
+      /**
+      * Function to verify OTP.
+      *
+      * @return Response
+      */
+      public function verifyOtp(Request $request){
+
+          $response_array = array();
+
+          $enteredOtp = $request->input('otp');
+          $userId = Auth::user()->pid;  //Getting UserID.
+
+          if($userId == "" || $userId == null){
+              $response_array['error'] = 1;
+              $response_array['message'] = 'You are logged out, Login again.';
+              $response_array['loggedIn'] = 0;
+          }else{
+              $OTP = $request->session()->get('OTP');
+              if($OTP === $enteredOtp){
+
+                  // Updating user's status "isVerified" as 1.
+
+                  User::where('pid', $userId)->update(['isVerified' => 1]);
+
+                  //Removing Session variable
+                  Session::forget('OTP');
+
+                  $response_array['error'] = 0;
+                  $response_array['isVerified'] = 1;
+                  $response_array['loggedIn'] = 1;
+                  $response_array['message'] = "Your Number is Verified.";
+              }else{
+                  $response_array['error'] = 1;
+                  $response_array['isVerified'] = 0;
+                  $response_array['loggedIn'] = 1;
+                  $response_array['message'] = "OTP does not match.";
+              }
+          }
+          //echo json_encode($response);
+          return response()->json(['response' => $response_array], $this-> successStatus);
+      }
+
+
 
 
 }

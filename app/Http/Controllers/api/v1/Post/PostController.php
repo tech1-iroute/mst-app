@@ -74,50 +74,51 @@ public $successStatus = 200;
       $user = Auth::user(); 
       $userId = Auth::id();
       $postArray = array();
-      $userVendor = UserVendor::where('user_id','=',$userId)->distinct()->get(['customer_id','vendor_id']);
-      //$input = $request->all(); 
-      $perPage = 5;
-      if ($page === 1) {
-          $skip = $page-1;
-      } else {
-          $skip = $perPage * ($page-1);
-      }
+      //$vendorIds = array();
+      $userVendor = UserVendor::where('user_id','=',$userId)->get(['vendor_id'])->toArray();
+      //print_r($userVendor); die;
       foreach($userVendor as $value){
-
-          $vendorId = $value->vendor_id;
-          $postDetails = $post->where('store_id', $vendorId)->skip($skip)->take($perPage)->get(); 
-          $arr = array();
-
-          foreach($postDetails as $postValue){
-
-            $arr['pid'] = $postValue->pid;
-            $arr['prod_name'] = $postValue->prod_name;
-            $arr['prod_desc'] = $postValue->prod_desc;
-            $arr['prod_all_img'] = $postValue->prod_all_img;
-            //$arr['date'] = $postValue->date;
-            $date = Carbon::parse($postValue->date); // now date is a carbon instance
-            $arr['date'] = $date->diffForHumans(Carbon::now());
-            $arr['prod_url'] = $postValue->prod_url;
-            $arr['product_interest_new'] = $postValue->product_interest_new;
-            $arr['user_interest'] = $postValue->user_interest;
-            $arr['store_id'] = $postValue->store_id;
-            $arr['uploaded_by_id'] = $postValue->uploaded_by_id;
-            $arr['vendorDetail'] = Vendor::find($postValue->store_id);
-            $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
-            $arr['subCategory'] = SubCategory::find($postValue->user_interest);
-            
-            $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
-            
-            $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
-
-            $postArray[]=$arr;
-
-          }
-      
+         $vendorIds[] = $value['vendor_id'];     
+      }
+      //$vendorId = implode(',', $vendorIds);
+      //$perPage = 5;
+      if ($page === 1) {
+          //$skip = $page-1;
+          $perPage = 5;
+      } else {
+          //$skip = $perPage * ($page-1);
+          $perPage = 5 * $page;
       }
 
-      $response_array['data']=array('feed_heading'=>"Socialtab",'feed_description'=>"Shows you brand posts related to your vendors",'post_details'=>$postArray);
-      return response()->json(['response' => $response_array], $this-> successStatus);
+      //$postDetails = $post->whereIn('store_id',$vendorIds)->skip($skip)->take($perPage)->get(); 
+        $postDetails = $post->whereIn('store_id',$vendorIds)->take($perPage)->get(); 
+        $postCount = count($postDetails);
+        $arr = array();
+        foreach($postDetails as $postValue){
+
+          $arr['pid'] = $postValue->pid;
+          $arr['prod_name'] = $postValue->prod_name;
+          $arr['prod_desc'] = $postValue->prod_desc;
+          $arr['prod_all_img'] = $postValue->prod_all_img;
+          $date = Carbon::parse($postValue->date); // now date is a carbon instance
+          $arr['date'] = $date->diffForHumans(Carbon::now());
+          $arr['prod_url'] = $postValue->prod_url;
+          $arr['product_interest_new'] = $postValue->product_interest_new;
+          $arr['user_interest'] = $postValue->user_interest;
+          $arr['store_id'] = $postValue->store_id;
+          $arr['uploaded_by_id'] = $postValue->uploaded_by_id;
+          $arr['vendorDetail'] = Vendor::find($postValue->store_id);
+          $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
+          $arr['subCategory'] = SubCategory::find($postValue->user_interest);
+          
+          $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
+          
+          $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
+          $postArray[]=$arr;
+
+        }
+            $response_array['data']=array('feed_heading'=>"Socialtab",'feed_description'=>"Shows you brand posts related to your vendors",'post_details'=>$postArray);
+            return response()->json(['response' => $response_array], $this-> successStatus);
 
     }
 }
