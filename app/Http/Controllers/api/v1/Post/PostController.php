@@ -14,6 +14,7 @@ use App\Customer;
 use App\UserVendor; 
 use App\PostComments; 
 use App\Bookmark; 
+use App\PostClickCount; 
 use Illuminate\Support\Facades\Auth; 
 use Validator;
 use DB;
@@ -152,6 +153,9 @@ public $successStatus = 200;
           } else {
               $arr['prod_status'] ="User Generated";
           }
+          $post_name= str_replace(" ","-",trim(strtolower(preg_replace('/[^A-Za-z0-9\-\(\) ]/','',$postValue->prod_name))));
+          $pageURL = 'https://mysocialtab.com/post/'.$post_name.'/'.$arr['pid'].'';
+          echo $arr['veiwCount'] = PostClickCount::where('page_url','=',$pageURL)->get(['page_count']);
           $arr['clicks'] = $postValue->clicks;
           $date = Carbon::parse($postValue->date); // now date is a carbon instance
           $arr['date'] = $date->diffForHumans(Carbon::now());
@@ -196,8 +200,8 @@ public $successStatus = 200;
           $relatedPostArray[]=$relatedArr;
 
         }
-            $response_array['data']=array('single_post_details'=>$postArray, 'related_post'=>$relatedPostArray);
-            return response()->json(['response' => $response_array], $this-> successStatus);
+          $response_array['data']=array('single_post_details'=>$postArray, 'related_post'=>$relatedPostArray);
+          return response()->json(['response' => $response_array], $this-> successStatus);
 
     }
 }

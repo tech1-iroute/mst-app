@@ -57,6 +57,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('user/interest', 'api\v1\User\UserController@userInterests');
 	Route::put('user/update_interest/{id}', 'api\v1\User\UserController@updateUserInterests');
 
+	Route::get('user/upcoming_dates_details', 'api\v1\UpcomingDates\UpcomingDatesController@show');
+
 });
 
 

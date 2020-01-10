@@ -99,9 +99,8 @@ public function __construct()
                     
         $destinationPath = public_path('/normal_images');
         $user_image->move($destinationPath, $imagename);
-        $input['user_image'] = $imagename;
-        //$input['user_image'] = '/public/thumbnail_images/'.$imagename;
-
+        $imgpath =public_path('thumbnail_images/' . $imagename);
+        $input['user_image'] = $imgpath;
         $input['password'] = bcrypt($input['password']); 
         $input['user_code'] = $this->generateRandomString(6);// it should be dynamic and unique 
         $user = User::create($input); 
