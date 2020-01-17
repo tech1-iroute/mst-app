@@ -81,7 +81,7 @@ public function __construct()
           'user_lname' => ['required', 'string', 'max:255'],
           'user_email' => ['required', 'string', 'email', 'max:255'],
           'password' => ['required', 'string', 'min:6'], 
-          'user_mobile' => 'required|min:10|numeric|unique:tbl_user',
+          'user_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|numeric|unique:tbl_user',
           'dob' => 'required',
           'user_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:1024',
         ]);

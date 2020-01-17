@@ -43,6 +43,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('post/feed/{page?}', 'api\v1\Post\PostController@feed');
 	Route::get('post/feed_single_detail_page/{id}', 'api\v1\Post\PostController@feed_single_detail_page');
 	Route::get('post/profile', 'api\v1\Post\PostController@profile');
+	Route::post('post/feed_single_page_click_increment', 'api\v1\Post\PostController@feed_single_page_click_increment');
 
 	Route::post('post_comment/store', 'api\v1\Comment\CommentController@store');
 	Route::get('post_comment/show/{id}', 'api\v1\Comment\CommentController@show');
