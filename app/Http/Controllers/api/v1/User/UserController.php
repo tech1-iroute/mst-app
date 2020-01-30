@@ -18,6 +18,7 @@ use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Socialite;
 use Image;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Session;
 
 class UserController extends Controller 
 {
@@ -366,12 +367,13 @@ public function __construct()
           } else {
 
               $otp = rand(100000, 999999);
-              $MSG91 = new MSG91();
+              $SendOTP = new SendOTP();
 
-              $msg91Response = $MSG91->sendSMS($otp,$users['user_mobile']);
+              $msg91Response = $SendOTP->sendSMS($otp,$users['user_mobile']);
 
               if($msg91Response['error']){
                   $response_array['error'] = 1;
+                  $response_array['user_mobile'] = $users['user_mobile'];
                   $response_array['message'] = $msg91Response['message'];
                   $response_array['loggedIn'] = 1;
               }else{
@@ -380,7 +382,8 @@ public function __construct()
 
                   $response_array['error'] = 0;
                   $response_array['message'] = 'Your OTP is created.';
-                  $response_array['OTP'] = $otp;
+                  $response_array['user_mobile'] = $users['user_mobile'];
+                  //$response_array['OTP'] = $otp;
                   $response_array['loggedIn'] = 1;
               }
           }
@@ -408,11 +411,11 @@ public function __construct()
               $response_array['loggedIn'] = 0;
           }else{
               $OTP = $request->session()->get('OTP');
-              if($OTP === $enteredOtp){
+              if($OTP == $enteredOtp){
 
                   // Updating user's status "isVerified" as 1.
 
-                  User::where('pid', $userId)->update(['isVerified' => 1]);
+                  //User::where('pid', $userId)->update(['isVerified' => 1]);
 
                   //Removing Session variable
                   Session::forget('OTP');

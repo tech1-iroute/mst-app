@@ -60,6 +60,8 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 	Route::get('user/upcoming_dates_details', 'api\v1\UpcomingDates\UpcomingDatesController@show');
 
+	Route::post('user/sendOtp', 'api\v1\User\UserController@sendOtp');
+	Route::post('user/verifyOtp', 'api\v1\User\UserController@verifyOtp');
 });
 
 
