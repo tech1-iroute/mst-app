@@ -10,9 +10,11 @@ use App\Bookmark;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Hash;
 use Validator;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class BookmarkController extends Controller
 {
+	use AuthenticatesUsers;
 	public $successStatus = 200;
     public function show(){
 

@@ -32,7 +32,7 @@ public function __construct()
 {
     $this->posts =new Post();
 }
-//use AuthenticatesUsers;
+use AuthenticatesUsers;
 
     public function login(Request $request){ 
 

@@ -15,10 +15,12 @@ use App\UserVendor;
 use App\PostComments; 
 use Illuminate\Support\Facades\Auth; 
 use Validator;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use DB;
 
 class CommentController extends Controller
 {
+    use AuthenticatesUsers;
     public $successStatus = 200;
 
     public function store(Request $request)
@@ -41,7 +43,21 @@ class CommentController extends Controller
     public function show($id) 
     {
         //$user_id = Auth::id();
-        $post_comment =PostComments::where('cpid','=',$id)->get(['cid','comment','user_id']);
+        $post_comment =PostComments::where('cpid','=',$id)->take(1)->get(['cid','comment','user_id']);
+        if (is_null($post_comment)) {
+            return response()->json(['response'=>'Post Comment not found.'], 401); 
+        } else {
+            $response_array['status']='success';
+            $response_array['data']=array('post_comment'=>$post_comment);
+            return response()->json(['response' => $response_array], $this-> successStatus); 
+        }
+    }
+
+
+    public function show_more($id) 
+    {
+        //$user_id = Auth::id();
+        $post_comment =PostComments::where('cpid','=',$id)->skip(1)->take(1000)->get(['cid','comment','user_id']);
         if (is_null($post_comment)) {
             return response()->json(['response'=>'Post Comment not found.'], 401); 
         } else {

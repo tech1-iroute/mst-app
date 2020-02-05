@@ -47,6 +47,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 	Route::post('post_comment/store', 'api\v1\Comment\CommentController@store');
 	Route::get('post_comment/show/{id}', 'api\v1\Comment\CommentController@show');
+	Route::get('post_comment/show_more/{id}', 'api\v1\Comment\CommentController@show_more');
 	Route::delete('post_comment/delete/{id}', 'api\v1\Comment\CommentController@destroy');
 
 	Route::get('user/bookmark_details', 'api\v1\Bookmark\BookmarkController@show');
@@ -59,6 +60,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::put('user/update_interest/{id}', 'api\v1\User\UserController@updateUserInterests');
 
 	Route::get('user/upcoming_dates_details', 'api\v1\UpcomingDates\UpcomingDatesController@show');
+	Route::get('user/lapsed_upcoming_dates_details', 'api\v1\UpcomingDates\UpcomingDatesController@lapsedUpcomingDateShow');
 
 	Route::post('user/sendOtp', 'api\v1\User\UserController@sendOtp');
 	Route::post('user/verifyOtp', 'api\v1\User\UserController@verifyOtp');

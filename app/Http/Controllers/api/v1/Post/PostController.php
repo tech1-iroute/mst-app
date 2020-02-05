@@ -18,11 +18,13 @@ use App\PostClickCount;
 use App\UserActivity; 
 use Illuminate\Support\Facades\Auth; 
 use Validator;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use DB;
 use Carbon\Carbon;
 
 class PostController extends Controller{
 
+use AuthenticatesUsers;
 public $successStatus = 200;
     
     public function profile(){
@@ -104,8 +106,38 @@ public $successStatus = 200;
           $arr['vendorDetail'] = Vendor::find($postValue->store_id);
           $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
           $arr['subCategory'] = SubCategory::find($postValue->user_interest);
-          
+
+          /*$user_act=array();
+          $userActivities = UserActivity::distinct()->where("product_id","=",$postValue->pid)->where('user_id','=',$userId)->get(['reason_id'])->toArray();
+          //print_r($userActivities);
+          foreach ($userActivities as $userActivity){
+            $user_act[]=$userActivity[0]['reason_id'];
+          } */
+          //$newActivity = explode(',', $userActivities[0]['reason_id']);
+          //print_r($user_act);
+          /*foreach($userActivities as $userActivity){
+           $user_act['newActivity'] = $userActivity['reason_id'];
+          }*/
+          /*$user_act[] = 100;
+          $class="";
+          if(in_array($arr['userActivity']['reason_id'], $user_act)){
+            $class="acted";
+          }else{
+            $class="user_act";
+          }
+          $arr['class'] =  $class;*/
           $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
+         /* $user_activities = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get();
+
+          foreach($user_activities as $user_activity){
+
+            if (in_array($user_activity->reason_id, $newActivity)) {
+              $arr['Activities'] = ['reason_id'=>$user_activity->reason_id,'reason_name'=>$user_activity->reason_name,'icon'=>$user_activity->icon,'interest_id'=>$user_activity->interest_id,DB::raw($postValue->pid.' as pid'),'selected'=>'yes'];
+             } else {
+              $arr['Activities'] = ['reason_id'=>$user_activity->reason_id,'reason_name'=>$user_activity->reason_name,'icon'=>$user_activity->icon,'interest_id'=>$user_activity->interest_id,DB::raw($postValue->pid.' as pid'),'selected'=>'no'];
+            }
+
+          }*/
           
           $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
           $postArray[]=$arr;

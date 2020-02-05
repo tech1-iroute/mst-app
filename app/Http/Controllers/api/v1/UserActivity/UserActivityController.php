@@ -15,11 +15,13 @@ use App\UserVendor;
 use App\UserActivity; 
 use Illuminate\Support\Facades\Auth; 
 use Validator;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use DB;
 use Carbon\Carbon;
 
 class UserActivityController extends Controller
 {
+    use AuthenticatesUsers;
     public $successStatus = 200;
     public function store(Request $request){
         
