@@ -126,15 +126,20 @@ public $successStatus = 200;
             $class="user_act";
           }
           $arr['class'] =  $class;*/
+
+          
           $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
-         /* $user_activities = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get();
+
+
+          /*$newActivity[] ='100';
+          $user_activities = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
 
           foreach($user_activities as $user_activity){
 
             if (in_array($user_activity->reason_id, $newActivity)) {
-              $arr['Activities'] = ['reason_id'=>$user_activity->reason_id,'reason_name'=>$user_activity->reason_name,'icon'=>$user_activity->icon,'interest_id'=>$user_activity->interest_id,DB::raw($postValue->pid.' as pid'),'selected'=>'yes'];
+              $arr['Activities'] = ['reason_id'=>$user_activity->reason_id,'reason_name'=>$user_activity->reason_name,'icon'=>$user_activity->icon,'interest_id'=>$user_activity->interest_id,'pid'=>$user_activity->pid,'selected'=>'yes'];
              } else {
-              $arr['Activities'] = ['reason_id'=>$user_activity->reason_id,'reason_name'=>$user_activity->reason_name,'icon'=>$user_activity->icon,'interest_id'=>$user_activity->interest_id,DB::raw($postValue->pid.' as pid'),'selected'=>'no'];
+              $arr['Activities'] = ['reason_id'=>$user_activity->reason_id,'reason_name'=>$user_activity->reason_name,'icon'=>$user_activity->icon,'interest_id'=>$user_activity->interest_id,'pid'=>$user_activity->pid,'selected'=>'no'];
             }
 
           }*/
