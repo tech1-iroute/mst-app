@@ -59,7 +59,6 @@ use AuthenticatesUsers;
 
             if ($this->hasTooManyLoginAttempts($request)) {
                   $this->fireLockoutEvent($request);
-                  //return response()->json(['response'=>'Too many login attempts. Please try again in 1 minute.'], 401);
                   $response_array['status']='fail';
                   $response_array['response_message']='Too many login attempts. Please try again in 1 minute';
                   return response()->json(['response'=>$response_array], 401);
@@ -91,6 +90,14 @@ use AuthenticatesUsers;
         }
         $input = $request->all(); 
 
+        $user = User::where('user_mobile', $input['user_mobile'])->first();
+        if(!is_null($user)) {
+            $response_array['status']='fail';
+            $response_array['response_message']='Sorry! this mobile number is already registered.';
+            $response_array['data']=array('user_details'=>$user);
+
+        } else {
+
         $user_image = $input['user_image'];
         $imagename = time().'.'.$user_image->getClientOriginalExtension(); 
 
@@ -108,7 +115,9 @@ use AuthenticatesUsers;
         $token =  $user->createToken('mst-app')-> accessToken; 
         $response_array['status']='success';
         $response_array['response_message']='User successfully Registered.';
+        
         $response_array['data']=array('token'=>$token,'user_details'=>$user);
+        }
         return response()->json(['response' => $response_array], $this-> successStatus);
     }
 

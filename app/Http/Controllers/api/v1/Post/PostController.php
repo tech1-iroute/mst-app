@@ -83,6 +83,7 @@ public $successStatus = 200;
         $postDetails = $post->whereIn('store_id',$vendorIds)->take($perPage)->get(); 
         $postCount = count($postDetails);
         $arr = array();
+        //$user_act = array();
         foreach($postDetails as $postValue){
 
           $arr['pid'] = $postValue->pid;
@@ -107,49 +108,26 @@ public $successStatus = 200;
           $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
           $arr['subCategory'] = SubCategory::find($postValue->user_interest);
 
-          /*$user_act=array();
-          $userActivities = UserActivity::distinct()->where("product_id","=",$postValue->pid)->where('user_id','=',$userId)->get(['reason_id'])->toArray();
-          //print_r($userActivities);
-          foreach ($userActivities as $userActivity){
-            $user_act[]=$userActivity[0]['reason_id'];
-          } */
-          //$newActivity = explode(',', $userActivities[0]['reason_id']);
-          //print_r($user_act);
-          /*foreach($userActivities as $userActivity){
-           $user_act['newActivity'] = $userActivity['reason_id'];
-          }*/
-          /*$user_act[] = 100;
-          $class="";
-          if(in_array($arr['userActivity']['reason_id'], $user_act)){
-            $class="acted";
-          }else{
-            $class="user_act";
-          }
-          $arr['class'] =  $class;*/
-
-          
-          $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
-
-
-          /*$newActivity[] ='100';
-          $user_activities = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
-
+          $results=DB::table('tbl_user_activity')->where("product_id","=",$postValue->pid)->where('user_id','=',$userId)->get()->pluck('reason_id')->toArray();
+          /*$arr['Activities1'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);*/
+          $user_activities = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')])->toArray();
+          $final = array();
           foreach($user_activities as $user_activity){
-
-            if (in_array($user_activity->reason_id, $newActivity)) {
-              $arr['Activities'] = ['reason_id'=>$user_activity->reason_id,'reason_name'=>$user_activity->reason_name,'icon'=>$user_activity->icon,'interest_id'=>$user_activity->interest_id,'pid'=>$user_activity->pid,'selected'=>'yes'];
+            if (in_array($user_activity['reason_id'], $results)) {
+              $final[] = ['reason_id'=>$user_activity['reason_id'],'reason_name'=>$user_activity['reason_name'],'icon'=>$user_activity['icon'],'interest_id'=>$user_activity['interest_id'],'pid'=>$user_activity['pid'],'selected'=>'yes'];
              } else {
-              $arr['Activities'] = ['reason_id'=>$user_activity->reason_id,'reason_name'=>$user_activity->reason_name,'icon'=>$user_activity->icon,'interest_id'=>$user_activity->interest_id,'pid'=>$user_activity->pid,'selected'=>'no'];
+              $final[] = ['reason_id'=>$user_activity['reason_id'],'reason_name'=>$user_activity['reason_name'],'icon'=>$user_activity['icon'],'interest_id'=>$user_activity['interest_id'],'pid'=>$user_activity['pid'],'selected'=>'no'];
             }
-
-          }*/
+            $arr['Activities']=$final;
+          }
           
           $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
+
           $postArray[]=$arr;
 
         }
-            $response_array['data']=array('feed_heading'=>"Socialtab",'feed_description'=>"Shows you brand posts related to your vendors",'post_details'=>$postArray);
-            return response()->json(['response' => $response_array], $this-> successStatus);
+        $response_array['data']=array('feed_heading'=>"Socialtab",'feed_description'=>"Shows you brand posts related to your vendors",'post_details'=>$postArray);
+        return response()->json(['response' => $response_array], $this-> successStatus);
 
     }
 
