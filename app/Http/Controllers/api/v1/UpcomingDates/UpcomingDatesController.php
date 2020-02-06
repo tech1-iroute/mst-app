@@ -47,7 +47,6 @@ class UpcomingDatesController extends Controller
 	    return response()->json(['response' => $response_array], $this-> successStatus);
 	}
 
-
 	public function lapsedUpcomingDateShow(){
 
     	$arr = array();
