@@ -31,7 +31,7 @@ class UserActivityController extends Controller
         $mytime = Carbon::now();
 		$input['activity_date'] = $mytime->toDateTimeString();
         $UserActivity = UserActivity::where("product_id","=",$input['product_id'])->where('user_id','=',$input['user_id'])->first();
-        if ($UserActivity) {
+        if($UserActivity) {
             $DeleteUserActivity=UserActivity::where("product_id","=",$input['product_id'])->where('user_id','=',$input['user_id'])->delete();
         }
         $activity = UserActivity::create($input);

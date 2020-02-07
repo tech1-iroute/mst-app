@@ -74,61 +74,110 @@ public $successStatus = 200;
       foreach($userVendor as $value){
          $vendorIds[] = $value['vendor_id'];     
       }
+
       if ($page === 1) {
           $perPage = 5;
       } else {
           $perPage = 5 * $page;
       }
 
-        $postDetails = $post->whereIn('store_id',$vendorIds)->take($perPage)->get(); 
-        $postCount = count($postDetails);
-        $arr = array();
-        //$user_act = array();
-        foreach($postDetails as $postValue){
+      $postDetails = $post->whereIn('store_id',$vendorIds)->take($perPage)->get(); 
+      $postCount = count($postDetails);
+      $arr = array();
+      //$user_act = array();
+      foreach($postDetails as $postValue){
 
-          $arr['pid'] = $postValue->pid;
-          $arr['prod_name'] = $postValue->prod_name;
-          $arr['prod_desc'] = $postValue->prod_desc;
-          $arr['prod_all_img'] = $postValue->prod_all_img;
-          if ($postValue->prod_status == 'B') { 
-              $arr['prod_status'] ="Sponsored";
-          } else if ($postValue->prod_status == 'S') {
-              $arr['prod_status'] ="System Generated";
-          } else {
-              $arr['prod_status'] ="User Generated";
-          }
-          $date = Carbon::parse($postValue->date); // now date is a carbon instance
-          $arr['date'] = $date->diffForHumans(Carbon::now());
-          $arr['prod_url'] = $postValue->prod_url;
-          $arr['product_interest_new'] = $postValue->product_interest_new;
-          $arr['user_interest'] = $postValue->user_interest;
-          $arr['store_id'] = $postValue->store_id;
-          $arr['uploaded_by_id'] = $postValue->uploaded_by_id;
-          $arr['vendorDetail'] = Vendor::find($postValue->store_id);
-          $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
-          $arr['subCategory'] = SubCategory::find($postValue->user_interest);
-
-          $results=DB::table('tbl_user_activity')->where("product_id","=",$postValue->pid)->where('user_id','=',$userId)->get()->pluck('reason_id')->toArray();
-          /*$arr['Activities1'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);*/
-          $user_activities = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')])->toArray();
-          $final = array();
-          foreach($user_activities as $user_activity){
-            if (in_array($user_activity['reason_id'], $results)) {
-              $final[] = ['reason_id'=>$user_activity['reason_id'],'reason_name'=>$user_activity['reason_name'],'icon'=>$user_activity['icon'],'interest_id'=>$user_activity['interest_id'],'pid'=>$user_activity['pid'],'selected'=>'yes'];
-             } else {
-              $final[] = ['reason_id'=>$user_activity['reason_id'],'reason_name'=>$user_activity['reason_name'],'icon'=>$user_activity['icon'],'interest_id'=>$user_activity['interest_id'],'pid'=>$user_activity['pid'],'selected'=>'no'];
-            }
-            $arr['Activities']=$final;
-          }
-          
-          $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
-
-          $postArray[]=$arr;
-
+        $arr['pid'] = $postValue->pid;
+        $arr['prod_name'] = $postValue->prod_name;
+        $arr['prod_desc'] = $postValue->prod_desc;
+        $arr['prod_all_img'] = $postValue->prod_all_img;
+        if ($postValue->prod_status == 'B') { 
+            $arr['prod_status'] ="Sponsored";
+        } else if ($postValue->prod_status == 'S') {
+            $arr['prod_status'] ="System Generated";
+        } else {
+            $arr['prod_status'] ="User Generated";
         }
-        $response_array['data']=array('feed_heading'=>"Socialtab",'feed_description'=>"Shows you brand posts related to your vendors",'post_details'=>$postArray);
-        return response()->json(['response' => $response_array], $this-> successStatus);
+        $date = Carbon::parse($postValue->date); // now date is a carbon instance
+        $arr['date'] = $date->diffForHumans(Carbon::now());
+        $arr['prod_url'] = $postValue->prod_url;
+        $arr['product_interest_new'] = $postValue->product_interest_new;
+        $arr['user_interest'] = $postValue->user_interest;
+        $arr['store_id'] = $postValue->store_id;
+        $arr['uploaded_by_id'] = $postValue->uploaded_by_id;
+        $arr['vendorDetail'] = Vendor::find($postValue->store_id);
+        $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
+        $arr['subCategory'] = SubCategory::find($postValue->user_interest);
 
+        $results=DB::table('tbl_user_activity')->where("product_id","=",$postValue->pid)->where('user_id','=',$userId)->get()->pluck('reason_id')->toArray();
+
+        /*$arr['Activities1'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);*/
+
+        $user_activities = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')])->toArray();
+        $final = array();
+        foreach($user_activities as $user_activity){
+          if (in_array($user_activity['reason_id'], $results)) {
+            $final[] = ['reason_id'=>$user_activity['reason_id'],'reason_name'=>$user_activity['reason_name'],'icon'=>$user_activity['icon'],'interest_id'=>$user_activity['interest_id'],'pid'=>$user_activity['pid'],'selected'=>'yes'];
+           } else {
+            $final[] = ['reason_id'=>$user_activity['reason_id'],'reason_name'=>$user_activity['reason_name'],'icon'=>$user_activity['icon'],'interest_id'=>$user_activity['interest_id'],'pid'=>$user_activity['pid'],'selected'=>'no'];
+          }
+          $arr['Activities']=$final;
+        }
+
+
+        $arr['user_activity_messages'] = $this->userActivityMessage($postValue->product_interest_new,$postValue->user_interest,$postValue->pid,$results);
+        
+        $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->take(1)->get(['cid','comment','user_id']);
+
+        $postArray[]=$arr;
+
+      }
+      $response_array['data']=array('feed_heading'=>"Socialtab",'feed_description'=>"Shows you brand posts related to your vendors",'post_details'=>$postArray);
+      return response()->json(['response' => $response_array], $this-> successStatus);
+
+    }
+
+    public function userActivityMessage($mainCategory, $subCategory, $pid, $results){
+
+            $arrNew = array();
+      $mainCategory = $mainCategory;
+      $subCategory = $subCategory;
+      $user_activity_messages = CategoryActivity::where('interest_id','=',$mainCategory)->where('status','>',0)->where('category_id','=',$subCategory)->orWhere('category_id','=',0)->orderBy('reason_id', 'ASC')->get()->toArray();
+
+      $sql_user_act = array();
+      $activity_message = array();
+      foreach($user_activity_messages as $user_activity_message){
+        $reason_id=$user_activity_message['reason_id'];
+        $pid=$pid;
+        $sql_user_act[] = DB::table('tbl_user_activity')
+                ->join('tbl_user', 'tbl_user_activity.user_id', '=', 'tbl_user.pid')
+                ->select('tbl_user_activity.*', 'tbl_user.*')
+                ->where('tbl_user_activity.product_id','=','$pid')
+                ->where('tbl_user_activity.reason_id','=','$reason_id') 
+                ->get()->toArray();
+
+        $messagesCount = count($sql_user_act);
+        if( $messagesCount > 0){
+          if(in_array($user_activity_message['reason_id'], $results)){
+
+            if($messagesCount==1){
+                  $activity_message[] = "You ".$user_activity_message['you']."";
+            }elseif($messagesCount==2){
+                  $oth=$messagesCount-1;
+                  $activity_message[] = "You and $oth other ".$user_activity_message['you_1'];
+            }else{
+                  $oth=$messagesCount-1;
+                  $activity_message[] = "You and $oth other's ".$user_activity_message['you_o'];
+            }
+
+          }
+        }
+
+        $arrNew=$activity_message;
+      }
+      return $arrNew;
+      //$response_array['data']=array('activity_message'=>$arrNew);
+      //return response()->json(['response' => $response_array], $this-> successStatus);
     }
 
 
