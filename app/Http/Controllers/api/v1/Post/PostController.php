@@ -125,7 +125,7 @@ public $successStatus = 200;
         }
 
 
-        $arr['user_activity_messages'] = $this->userActivityMessage($postValue->product_interest_new,$postValue->user_interest,$postValue->pid,$results);
+        $arr['user_activity_messages'] = $this->userActivityMessage($postValue->product_interest_new,$postValue->user_interest,$postValue->pid,$results,$userId);
         
         $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->take(1)->get(['cid','comment','user_id']);
 
@@ -137,16 +137,20 @@ public $successStatus = 200;
 
     }
 
-    public function userActivityMessage($mainCategory, $subCategory, $pid, $results){
+    public function userActivityMessage($mainCategory, $subCategory, $pid, $results, $userId){
 
       $arrNew = array();
       $mainCategory = $mainCategory;
       $subCategory = $subCategory;
+      
+      /*$results1 =UserActivity::where("product_id","=",$pid)->where('user_id','=',$userId)->get(['reason_id'])->toArray();
+      $results11 = explode(',', $results1[0]['reason_id']);*/
+
       $user_activity_messages = CategoryActivity::where('interest_id','=',$mainCategory)->where('status','>',0)->where('category_id','=',$subCategory)->orWhere('category_id','=',0)->orderBy('reason_id', 'ASC')->get()->toArray();
 
       $sql_user_act = array();
       $activity_message = array();
-      //$activity_message = '';
+      //$activity_message ='';
       foreach($user_activity_messages as $user_activity_message){
         $reason_id=$user_activity_message['reason_id'];
         $pid=$pid;
@@ -159,7 +163,12 @@ public $successStatus = 200;
 
         $messagesCount = count($sql_user_act);
         if( $messagesCount > 0){
-          if(in_array($user_activity_message['reason_id'], $results)){
+          //$results1 = array('99','100','101','102');
+          //echo $user_activity_message['reason_id'];
+          //var_dump($results) ;
+          //echo $reason_id;
+          //print_r($results11);
+          if(in_array($reason_id, $results)){
 
             if($messagesCount==1){
                   $activity_message[] = "You ".$user_activity_message['you']."";
@@ -177,8 +186,6 @@ public $successStatus = 200;
         $arrNew=$activity_message;
       }
       return $arrNew;
-      //$response_array['data']=array('activity_message'=>$arrNew);
-      //return response()->json(['response' => $response_array], $this-> successStatus);
     }
 
 

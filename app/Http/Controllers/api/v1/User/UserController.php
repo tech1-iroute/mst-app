@@ -83,7 +83,7 @@ use AuthenticatesUsers;
           'password' => ['required', 'string', 'min:6'], 
           'user_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|numeric|unique:tbl_user',
           'dob' => 'required',
-          'user_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:1024',
+          //'user_image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:1024',
         ]);
         if ($validator->fails()) { 
           return response()->json(['response'=>$validator->errors()], 401);            
@@ -98,7 +98,7 @@ use AuthenticatesUsers;
 
         } else {
 
-        $user_image = $input['user_image'];
+        /*$user_image = $input['user_image'];
         $imagename = time().'.'.$user_image->getClientOriginalExtension(); 
 
         $destinationPath = public_path('/thumbnail_images');
@@ -108,7 +108,9 @@ use AuthenticatesUsers;
         $destinationPath = public_path('/normal_images');
         $user_image->move($destinationPath, $imagename);
         $imgpath =public_path('thumbnail_images/' . $imagename);
-        $input['user_image'] = $imgpath;
+        $input['user_image'] = $imgpath;*/
+        
+        $input['user_image'] = 'https://mysocialtab.com/MobileImages/upload-icon.png';
         $input['password'] = bcrypt($input['password']); 
         $input['user_code'] = $this->generateRandomString(6);// it should be dynamic and unique 
         $user = User::create($input); 
