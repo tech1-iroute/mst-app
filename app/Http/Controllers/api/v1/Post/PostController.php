@@ -139,13 +139,14 @@ public $successStatus = 200;
 
     public function userActivityMessage($mainCategory, $subCategory, $pid, $results){
 
-            $arrNew = array();
+      $arrNew = array();
       $mainCategory = $mainCategory;
       $subCategory = $subCategory;
       $user_activity_messages = CategoryActivity::where('interest_id','=',$mainCategory)->where('status','>',0)->where('category_id','=',$subCategory)->orWhere('category_id','=',0)->orderBy('reason_id', 'ASC')->get()->toArray();
 
       $sql_user_act = array();
       $activity_message = array();
+      //$activity_message = '';
       foreach($user_activity_messages as $user_activity_message){
         $reason_id=$user_activity_message['reason_id'];
         $pid=$pid;
