@@ -125,7 +125,7 @@ public $successStatus = 200;
         }
 
 
-        $arr['user_activity_messages'] = $this->userActivityMessage($postValue->product_interest_new,$postValue->user_interest,$postValue->pid,$results,$userId);
+        $arr['user_activity_messages'] = $this->userActivityMessage($postValue->product_interest_new,$postValue->user_interest,$postValue->pid,$userId);
         
         $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->take(1)->get(['cid','comment','user_id']);
 
@@ -137,39 +137,29 @@ public $successStatus = 200;
 
     }
 
-    public function userActivityMessage($mainCategory, $subCategory, $pid, $results, $userId){
+    public function userActivityMessage($mainCategory, $subCategory, $pid, $userId){
 
       $arrNew = array();
       $mainCategory = $mainCategory;
       $subCategory = $subCategory;
-      
-      /*$results1 =UserActivity::where("product_id","=",$pid)->where('user_id','=',$userId)->get(['reason_id'])->toArray();
-      $results11 = explode(',', $results1[0]['reason_id']);*/
+      $results =UserActivity::where("product_id","=",$pid)->where('user_id','=',$userId)->get();
 
       $user_activity_messages = CategoryActivity::where('interest_id','=',$mainCategory)->where('status','>',0)->where('category_id','=',$subCategory)->orWhere('category_id','=',0)->orderBy('reason_id', 'ASC')->get()->toArray();
-
-      $sql_user_act = array();
+      $activityMessagesCount = count($user_activity_messages);
+      if( $activityMessagesCount > 0){
       $activity_message = array();
-      //$activity_message ='';
       foreach($user_activity_messages as $user_activity_message){
         $reason_id=$user_activity_message['reason_id'];
         $pid=$pid;
-        $sql_user_act[] = DB::table('tbl_user_activity')
+        $sql_user_act = DB::table('tbl_user_activity')
                 ->join('tbl_user', 'tbl_user_activity.user_id', '=', 'tbl_user.pid')
                 ->select('tbl_user_activity.*', 'tbl_user.*')
-                ->where('tbl_user_activity.product_id','=','$pid')
-                ->where('tbl_user_activity.reason_id','=','$reason_id') 
-                ->get()->toArray();
-
+                ->where('tbl_user_activity.product_id','=',$pid)
+                ->where('tbl_user_activity.reason_id','=',$reason_id) 
+                ->get();
         $messagesCount = count($sql_user_act);
-        if( $messagesCount > 0){
-          //$results1 = array('99','100','101','102');
-          //echo $user_activity_message['reason_id'];
-          //var_dump($results) ;
-          //echo $reason_id;
-          //print_r($results11);
-          if(in_array($reason_id, $results)){
-
+        if($messagesCount > 0){
+          if($results->contains('reason_id', $reason_id)){
             if($messagesCount==1){
                   $activity_message[] = "You ".$user_activity_message['you']."";
             }elseif($messagesCount==2){
@@ -179,16 +169,23 @@ public $successStatus = 200;
                   $oth=$messagesCount-1;
                   $activity_message[] = "You and $oth other's ".$user_activity_message['you_o'];
             }
-
+          } /*else {
+            if($messagesCount==1){
+              if($user_activity_message['single']=="bookmarked this"){
+                  $activity_message[] = "1 person ".$user_activity_message['single']."";  
+              }else {
+                  $activity_message[] = "1 person ".$user_activity_message['single']."";
+              }   
+            }else{
+              $activity_message[] =  $messagesCount." people  ".$user_activity_message['single_o'];
+            }
+          }*/
           }
+          $arrNew=$activity_message;
         }
-
-        $arrNew=$activity_message;
+        return $arrNew;
       }
-      return $arrNew;
     }
-
-
 
     public function feed_single_detail_page(Request $request, $post_id){
       $post = new Post();
