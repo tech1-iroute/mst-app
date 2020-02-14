@@ -19,6 +19,7 @@ use Socialite;
 use Image;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Session;
+use Carbon\Carbon;
 
 class UserController extends Controller 
 {
@@ -109,7 +110,9 @@ use AuthenticatesUsers;
         $user_image->move($destinationPath, $imagename);
         $imgpath =public_path('thumbnail_images/' . $imagename);
         $input['user_image'] = $imgpath;*/
-        
+        $createdAt = Carbon::parse($input['dob']);
+        $input['dob'] = $createdAt->format('Y-m-d');
+
         $input['user_image'] = 'https://mysocialtab.com/MobileImages/upload-icon.png';
         $input['password'] = bcrypt($input['password']); 
         $input['user_code'] = $this->generateRandomString(6);// it should be dynamic and unique 
