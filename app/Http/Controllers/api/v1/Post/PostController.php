@@ -169,17 +169,17 @@ public $successStatus = 200;
                   $oth=$messagesCount-1;
                   $activity_message[] = "You and $oth other's ".$user_activity_message['you_o'];
             }
-          } /*else {
-            if($messagesCount==1){
-              if($user_activity_message['single']=="bookmarked this"){
-                  $activity_message[] = "1 person ".$user_activity_message['single']."";  
-              }else {
-                  $activity_message[] = "1 person ".$user_activity_message['single']."";
-              }   
-            }else{
-              $activity_message[] =  $messagesCount." people  ".$user_activity_message['single_o'];
-            }
-          }*/
+          } else {
+              if($messagesCount==1){
+                if($user_activity_message['single']=="bookmarked this"){
+                    $activity_message[] = "1 person ".$user_activity_message['single']."";  
+                } else {
+                    $activity_message[] = "1 person ".$user_activity_message['single']."";
+                }   
+              } else {
+                $activity_message[] =  $messagesCount." people  ".$user_activity_message['single_o'];
+              }
+            } 
           }
           $arrNew=$activity_message;
         }

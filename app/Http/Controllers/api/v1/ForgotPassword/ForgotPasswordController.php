@@ -52,7 +52,6 @@ class ForgotPasswordController extends Controller
 	            User::where('pid', $records->pid)->update(array('password' => $updatepassword));
 	            $this->_sendpasswordmail($records->user_fname,$records->user_email,$password);
 	            $response_array['status']='success';
-	            //$response_array['response_message']='Password updated successfully.';
 	            $response_array['response_message']='Password has been sent to your email';
 	            $response_array['data']=array('new_password_detail'=>$password);
 	            return response()->json(['response' => $response_array], $this-> successStatus); 
@@ -74,14 +73,7 @@ class ForgotPasswordController extends Controller
         });
     }
 
-    /**
-     * Send a reset link to the given user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function getResetToken(Request $request){
-        //$this->validate($request, ['user_email' => 'required|email']);
         $validator = Validator::make($request->all(), [ 
             'user_email'     => ['required', 'string', 'email', 'max:255'],
         ]);
@@ -89,20 +81,42 @@ class ForgotPasswordController extends Controller
             return response()->json(['response'=>$validator->errors()], 401);  
         }
         if ($request->wantsJson()) {
-            //$user = User::where('user_email', '=',$request->input('user_email'))->first();
             $user_email = $request->get('user_email'); 
             $user = User::where('user_email','=',$user_email)->first();
             $user->email = $request->get('user_email');
-            //print_r($user); die;
             if (!$user) {
                 return response()->json(Json::response(null, trans('passwords.user')), 400);
-                //return response()->json(['response'=>'User not found.'], 401);
             }
             $token = $this->broker()->createToken($user);
-           //$token  = 'hi';
             return response()->json(Json::response(['token' => $token]));
-            //$response_array['data']=array('token'=>$token);
-            //return response()->json(['response'=>$response_array], 401);
         }
     }
+
+
+
+    public function UpdatePassword(Request $request)
+    {
+        $validator = Validator::make($request->all(), [ 
+          'current_password' => ['required', 'string', 'min:6'], 
+          'new_password' => ['required', 'string', 'min:6'],
+        ]);
+        if ($validator->fails()) { 
+          return response()->json(['response'=>$validator->errors()], 401);            
+        }
+
+        $current_password = $request->current_password;
+        $new_password  = $request->new_password;
+
+        if(!Hash::check($current_password,Auth::user()->password)){
+            $response_array['status']='fail';
+            $response_array['response_message']='The specified password does not match.';
+            return response()->json(['response'=>$response_array], 401); 
+        }else{
+            $request->user()->fill(['password' => Hash::make($new_password)])->save();
+            $response_array['status']='success';
+            $response_array['response_message']='Password updated Successfully. Login with your new password.';
+            return response()->json(['response' => $response_array], $this-> successStatus);
+
+        }     
+    }       
 }

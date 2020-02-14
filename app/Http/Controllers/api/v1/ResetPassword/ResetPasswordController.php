@@ -11,6 +11,8 @@ use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Auth\Passwords\PasswordBroker;
+use Illuminate\Contracts\Auth\CanResetPassword;
 
 class ResetPasswordController extends Controller{
 	public $successStatus = 200;
@@ -56,9 +58,10 @@ class ResetPasswordController extends Controller{
         // If the password was successfully reset, we will redirect the user back to
         // the application's home authenticated view. If there is an error we can
         // redirect them back to where they came from with their error message.
-        return $response == Password::PASSWORD_RESET
+
+        /*return $response == Password::PASSWORD_RESET
         ? $this->sendResetResponse($request, $response)
-        : $this->sendResetFailedResponse($request, $response);
+        : $this->sendResetFailedResponse($request, $response);*/
     }
 
 
@@ -110,18 +113,6 @@ class ResetPasswordController extends Controller{
         ])->save();
     }
 
-    /*protected function resetPassword($user, $password){
-        $user->password = Hash::make($password);
-
-        $user->setRememberToken(Str::random(60));
-
-        $user->save();
-
-        event(new PasswordReset($user));
-
-        $this->guard()->login($user);
-    }*/
-
     /**
      * Get the response for a successful password reset.
      *
@@ -157,7 +148,7 @@ class ResetPasswordController extends Controller{
 
         //return response()->json(['success' => $data], 401);
         if($request->wantsJson()) { // based on HTTP headers as above
-            return response()->json(['success' => trans($response)], 401);
+            return response()->json(['fail' => trans($response)], 401);
             //$data = array_merge(__('errors.unauthorised'), ['message' => trans($response)]);
             //return response()->json($data, \Illuminate\Http\Response::HTTP_UNAUTHORIZED);
             

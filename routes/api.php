@@ -22,11 +22,13 @@ Route::post('user/login', 'api\v1\User\UserController@login');
 Route::post('user/register', 'api\v1\User\UserController@register');
 
 Route::get('login/facebook', 'api\v1\User\UserController@redirectToProvider');
-// Route::get('login/facebook', function(){echo 'Hello';die;});
+//Route::get('login/facebook', function(){echo 'Hello';die;});
 Route::get('login/facebook/callback', 'api\v1\User\UserController@handleProviderCallback');
 
 
 Route::post('forgotPassword/email', 'api\v1\ForgotPassword\ForgotPasswordController@userForgetpassword');
+Route::post('forgotPassword/update_password', 'api\v1\ForgotPassword\ForgotPasswordController@UpdatePassword');
+
 Route::post('password/email', 'api\v1\ForgotPassword\ForgotPasswordController@getResetToken');
 Route::post('password/reset', 'api\v1\ResetPassword\ResetPasswordController@reset');
 
