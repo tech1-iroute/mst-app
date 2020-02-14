@@ -110,8 +110,8 @@ use AuthenticatesUsers;
         $user_image->move($destinationPath, $imagename);
         $imgpath =public_path('thumbnail_images/' . $imagename);
         $input['user_image'] = $imgpath;*/
-        $createdAt = Carbon::parse($input['dob']);
-        $input['dob'] = $createdAt->format('Y-m-d');
+        $dob = Carbon::parse($input['dob']);
+        $input['dob'] = $dob->format('Y-m-d');
 
         $input['user_image'] = 'https://mysocialtab.com/MobileImages/upload-icon.png';
         $input['password'] = bcrypt($input['password']); 

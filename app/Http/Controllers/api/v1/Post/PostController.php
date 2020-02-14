@@ -111,8 +111,6 @@ public $successStatus = 200;
 
         $results=DB::table('tbl_user_activity')->where("product_id","=",$postValue->pid)->where('user_id','=',$userId)->get()->pluck('reason_id')->toArray();
 
-        /*$arr['Activities1'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);*/
-
         $user_activities = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')])->toArray();
         $final = array();
         foreach($user_activities as $user_activity){
