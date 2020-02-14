@@ -126,7 +126,14 @@ public $successStatus = 200;
 
 
         $arr['user_activity_messages'] = $this->userActivityMessage($postValue->product_interest_new,$postValue->user_interest,$postValue->pid,$userId);
-        
+
+        $allPostComments = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
+        $allPostCommentsCount = count($allPostComments);
+
+        if($allPostCommentsCount > 1){
+          $arr['postMoreComments'] = $this->show_more($postValue->pid);
+        }
+
         $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->take(1)->get(['cid','comment','user_id']);
 
         $postArray[]=$arr;
@@ -145,9 +152,12 @@ public $successStatus = 200;
       $results =UserActivity::where("product_id","=",$pid)->where('user_id','=',$userId)->get();
 
       $user_activity_messages = CategoryActivity::where('interest_id','=',$mainCategory)->where('status','>',0)->where('category_id','=',$subCategory)->orWhere('category_id','=',0)->orderBy('reason_id', 'ASC')->get()->toArray();
+
       $activityMessagesCount = count($user_activity_messages);
+
       if( $activityMessagesCount > 0){
       $activity_message = array();
+
       foreach($user_activity_messages as $user_activity_message){
         $reason_id=$user_activity_message['reason_id'];
         $pid=$pid;
@@ -161,30 +171,43 @@ public $successStatus = 200;
         if($messagesCount > 0){
           if($results->contains('reason_id', $reason_id)){
             if($messagesCount==1){
-                  $activity_message['message'] = "You ".$user_activity_message['you']."";
+                  $activity_message[] = ['message'=>"You ".$user_activity_message['you']."",'icon'=>$user_activity_message['icon']];
+                  //"You ".$user_activity_message['you']."";
             }elseif($messagesCount==2){
                   $oth=$messagesCount-1;
-                  $activity_message['message'] = "You and $oth other ".$user_activity_message['you_1'];
+                  $activity_message[] = ['message'=>"You and $oth other ".$user_activity_message['you_1'],'icon'=>$user_activity_message['icon']];
+                  //"You and $oth other ".$user_activity_message['you_1'];
             }else{
                   $oth=$messagesCount-1;
-                  $activity_message['message'] = "You and $oth other's ".$user_activity_message['you_o'];
+                  $activity_message[] = ['message'=>"You and $oth other's ".$user_activity_message['you_o'],'icon'=>$user_activity_message['icon']];
+                  //"You and $oth other's ".$user_activity_message['you_o'];
             }
           } else {
               if($messagesCount==1){
                 if($user_activity_message['single']=="bookmarked this"){
-                    $activity_message['message'] = "1 person ".$user_activity_message['single']."";  
+                    $activity_message[] = ['message'=>"1 person ".$user_activity_message['single']."",'icon'=>$user_activity_message['icon']];
+                    //"1 person ".$user_activity_message['single']."";  
                 } else {
-                    $activity_message['message'] = "1 person ".$user_activity_message['single']."";
+                    $activity_message[] = ['message'=>"1 person ".$user_activity_message['single']."",'icon'=>$user_activity_message['icon']];
+                    //"1 person ".$user_activity_message['single']."";
                 }   
               } else {
-                $activity_message['message'] =  $messagesCount." people  ".$user_activity_message['single_o'];
+                $activity_message[] =  ['message'=>$messagesCount." people  ".$user_activity_message['single_o'],'icon'=>$user_activity_message['icon']];
+                //$messagesCount." people  ".$user_activity_message['single_o'];
               }
             } 
           }
           $arrNew=$activity_message;
         }
+
         return $arrNew;
       }
+    }
+
+    public function show_more($id) 
+    {
+        $post_comment =PostComments::where('cpid','=',$id)->skip(1)->take(1000)->get(['cid','comment','user_id']);
+        return $post_comment;
     }
 
     public function feed_single_detail_page(Request $request, $post_id){
