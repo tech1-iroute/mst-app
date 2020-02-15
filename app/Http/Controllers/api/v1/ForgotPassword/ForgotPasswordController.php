@@ -6,16 +6,16 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Transformers\Json;
 use App\User; 
-use Illuminate\Support\Facades\Auth; 
+//use Illuminate\Support\Facades\Auth; 
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Support\Traits\MacroableTrait;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Http\Response;
+//use Illuminate\Support\Facades\Storage;
+//use Illuminate\Http\Response;
 use Validator;
-use Input;
-use Session;
-use Crypt;
-use Hash;
+//use Input;
+//use Session;
+//use Crypt;
+//use Hash;
 
 class ForgotPasswordController extends Controller
 {

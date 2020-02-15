@@ -29,7 +29,11 @@ Route::get('login/facebook/callback', 'api\v1\User\UserController@handleProvider
 Route::post('forgotPassword/email', 'api\v1\ForgotPassword\ForgotPasswordController@userForgetpassword');
 Route::post('forgotPassword/update_password', 'api\v1\ForgotPassword\ForgotPasswordController@UpdatePassword');
 
-Route::post('password/email', 'api\v1\ForgotPassword\ForgotPasswordController@getResetToken');
+/*Route::post('password/email', 'api\v1\ForgotPassword\ForgotPasswordController@getResetToken');
+Route::post('password/reset', 'api\v1\ResetPassword\ResetPasswordController@reset');*/
+
+Route::post('password/create', 'api\v1\ResetPassword\ResetPasswordController@create');
+Route::get('password/find/{token}', 'api\v1\ResetPassword\ResetPasswordController@find');
 Route::post('password/reset', 'api\v1\ResetPassword\ResetPasswordController@reset');
 
 Route::group(['middleware' => 'auth:api'], function(){
