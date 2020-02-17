@@ -92,11 +92,15 @@ use AuthenticatesUsers;
         $input = $request->all(); 
 
         $user = User::where('user_mobile', $input['user_mobile'])->first();
+        $userCheckEmail = User::where('user_email', $input['user_email'])->first();
         if(!is_null($user)) {
             $response_array['status']='fail';
             $response_array['response_message']='Sorry! this mobile number is already registered.';
-            $response_array['data']=array('user_details'=>$user);
-
+            //$response_array['data']=array('user_details'=>$user);
+        } elseif(!is_null($userCheckEmail)) {
+            $response_array['status']='fail';
+            $response_array['response_message']='Sorry! this email id is already registered.';
+            //$response_array['data']=array('user_details'=>$userCheckEmail);
         } else {
 
         /*$user_image = $input['user_image'];
