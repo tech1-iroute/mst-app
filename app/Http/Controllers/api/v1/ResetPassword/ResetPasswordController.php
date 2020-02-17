@@ -14,7 +14,7 @@ use Illuminate\Support\Str;
 
 class ResetPasswordController extends Controller
 {
-  
+
     public function create(Request $request)
     {
         $request->validate([
