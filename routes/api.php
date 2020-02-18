@@ -70,6 +70,9 @@ Route::group(['middleware' => 'auth:api'], function(){
 
 	Route::post('user/sendOtp', 'api\v1\User\UserController@sendOtp');
 	Route::post('user/verifyOtp', 'api\v1\User\UserController@verifyOtp');
+
+	Route::get('my_vendor/getMyVendor', 'api\v1\MyVendor\MyVendorController@getMyVendor');
+	Route::get('my_pending_vendor/getPendingVendor', 'api\v1\MyVendor\MyVendorController@getPendingVendor');
 });
 
 
