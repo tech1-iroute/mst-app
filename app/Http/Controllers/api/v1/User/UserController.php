@@ -71,7 +71,7 @@ use AuthenticatesUsers;
             }
 
             $response_array['status']='fail';
-            $response_array['response_message']='There is a problem in logged in';
+            $response_array['response_message']='There is a problem in logged in. Please check your user mobile number and password.';
             return response()->json(['response'=>$response_array], 401); 
         } 
     }

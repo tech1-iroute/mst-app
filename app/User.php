@@ -56,4 +56,17 @@ class User extends Authenticatable
         return $this->hasMany('App\Bookmark', 'user_id');
     }
 
+    public function UserPromotion(){
+        return $this->hasMany('App\UserPromotion', 'user_id');
+    }
+
+    public function VendorLead(){
+        return $this->hasMany('App\VendorLead', 'user');
+    }
+
+
+  /*  public function getAuthPassword() {
+       return $this->user_password;
+    }*/
+
 }

@@ -43,7 +43,12 @@ class CommentController extends Controller
     public function show($id) 
     {
         //$user_id = Auth::id();
-        $post_comment =PostComments::where('cpid','=',$id)->take(1)->get(['cid','comment','user_id']);
+        //$post_comment =PostComments::where('cpid','=',$id)->take(1)->get(['cid','comment','user_id']);
+        $post_comment = DB::table('comments')
+                ->join('tbl_user', 'comments.user_id', '=', 'tbl_user.pid')
+                ->select('comments.*', 'tbl_user.user_image')
+                ->where('comments.cpid','=',$id)
+                ->take(1)->get();
         if (is_null($post_comment)) {
             return response()->json(['response'=>'Post Comment not found.'], 401); 
         } else {
@@ -57,7 +62,12 @@ class CommentController extends Controller
     public function show_more($id) 
     {
         //$user_id = Auth::id();
-        $post_comment =PostComments::where('cpid','=',$id)->skip(1)->take(1000)->get(['cid','comment','user_id']);
+        //$post_comment =PostComments::where('cpid','=',$id)->skip(1)->take(1000)->get(['cid','comment','user_id']);
+        $post_comment = DB::table('comments')
+                ->join('tbl_user', 'comments.user_id', '=', 'tbl_user.pid')
+                ->select('comments.*', 'tbl_user.user_image')
+                ->where('comments.cpid','=',$id)
+                ->skip(1)->take(1000)->get();
         if (is_null($post_comment)) {
             return response()->json(['response'=>'Post Comment not found.'], 401); 
         } else {

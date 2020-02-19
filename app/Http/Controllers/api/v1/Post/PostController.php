@@ -125,15 +125,20 @@ public $successStatus = 200;
 
         $arr['user_activity_messages'] = $this->userActivityMessage($postValue->product_interest_new,$postValue->user_interest,$postValue->pid,$userId);
 
-        $allPostComments = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
+       /* $allPostComments = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
         $allPostCommentsCount = count($allPostComments);
 
         if($allPostCommentsCount > 1){
           $arr['postMoreComments'] = $this->show_more($postValue->pid);
-        }
+        }*/
 
-        $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->take(1)->get(['cid','comment','user_id']);
-
+        //$arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->take(1)->get(['cid','comment','user_id']);
+        
+        $arr['postComments'] = DB::table('comments')
+                ->join('tbl_user', 'comments.user_id', '=', 'tbl_user.pid')
+                ->select('comments.*', 'tbl_user.user_image')
+                ->where('comments.cpid','=',$postValue->pid)
+                ->take(1)->get();
         $postArray[]=$arr;
 
       }
