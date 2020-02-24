@@ -42,7 +42,7 @@ class UserPromotionController extends Controller
                 $lead_id=$vendorLead->leadId;
                 $sql_promotions = DB::table('tbl_user_promotions')
                 ->join('tbl_vendor', 'tbl_user_promotions.vendor_id', '=', 'tbl_vendor.vendor_id')
-                ->select('tbl_user_promotions.*', 'tbl_vendor.*')
+                ->select('tbl_user_promotions.*', 'tbl_vendor.vendor_company_name', 'tbl_vendor.vendor_company_logo')
                 ->where('tbl_user_promotions.user_id','=',$lead_id)
                 ->where('tbl_user_promotions.user_type','=','lead') 
                 ->get();
@@ -54,11 +54,16 @@ class UserPromotionController extends Controller
                         $user_id=$sql_promotion->user_id;
                         $vendor_id=$sql_promotion->vendor_id;
                         $promotion_accepted=$sql_promotion->promotion_accepted;
+                        $created_at = $sql_promotion->created_at;
 
-                        $sql_promotion_detail = VendorEvents::where('event_id','=',$promotion_id)->where('end_date','>=',date('Y-m-d'))->get(['event_title','event_description','offer_validity','end_date']);
+                        $date = Carbon::now();
+                        $dates = $date->format('Y-m-d');
+
+                        $sql_promotion_detail = VendorEvents::where('event_id','=',$promotion_id)->where('end_date','>=',$dates)->get(['event_title','event_description','offer_validity','end_date']);
                         $promotionDetailsCount = count($sql_promotion_detail);
                             if( $promotionDetailsCount > 0){
                                 foreach($sql_promotion_detail as $sql_promotion_details){
+                                    
                                     $offer_accept_validity = $sql_promotion_details->offer_validity;
                                     $offer_assign_date = date('Y-m-d',strtotime($sql_promotion->created_at));
                                     $offer_accept_end = date('Y-m-d', strtotime($offer_assign_date. " + $offer_accept_validity days"));
@@ -80,25 +85,52 @@ class UserPromotionController extends Controller
                                         $arr['button'] ='Accept';
                                         $arr['message'] =$days. ' days left to accept this offer.';
                                     } else { 
-                                        $arr['message'] ='This offer will expier after' .$expire_days. 'days.';
+                                        $arr['message'] ='This offer will expier after ' .$expire_days. ' days.';
                                     } 
 
-
+                                    $promotionArray[]=$arr;
                                 }
+
                             }
                     }
 
                 }
 
-                $promotionArray[]=$arr;
-
+                //$promotionArray[]=$arr;
             }
         }
         
         $response_array['status']='success';
-        //$response_array['response_message']='Activity done Successfully.';
         $response_array['data']=array('promotion_details'=>$promotionArray);
         return response()->json(['response' => $response_array], $this-> successStatus);
         
     }
+
+
+    public function acceptPromotion(Request $request, $id, $vendor_id, $promotion_id){
+
+        $user_id = $id;
+        $vendor_id = $vendor_id;
+        $promotion_id = $promotion_id;
+        $date = Carbon::now();
+        $accept_date = $date->format('Y-m-d');
+
+        $UpdateDetails = UserPromotion::where('user_id', $user_id)->where('vendor_id', $vendor_id)->where('promotion_id', $promotion_id)->update([
+           'promotion_accepted' => 'yes',
+           'accept_date' => $accept_date
+        ]);
+        if($UpdateDetails){
+            $response_array['status']='success';
+            $response_array['response_message']='Accept Promotion Successfully.';
+            //$response_array['data']=array('status'=>1);
+            return response()->json(['response' => $response_array], $this-> successStatus);
+        } else {
+            $response_array['status']='fail';
+            $response_array['response_message']='There is issues related accept this request.';
+            //$response_array['data']=array('status'=>0);
+            return response()->json(['response' => $response_array], $this-> successStatus);
+
+        }
+        
+      }
 }

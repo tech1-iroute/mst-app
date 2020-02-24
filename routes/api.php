@@ -75,6 +75,7 @@ Route::group(['middleware' => 'auth:api'], function(){
 	Route::get('my_pending_vendor/getPendingVendor', 'api\v1\MyVendor\MyVendorController@getPendingVendor');
 
 	Route::get('my_promotion/showPromotion', 'api\v1\UserPromotion\UserPromotionController@showPromotion');
+	Route::put('my_promotion/acceptPromotion/{id}/{vendor_id}/{promotion_id}', 'api\v1\UserPromotion\UserPromotionController@acceptPromotion');
 });
 
 

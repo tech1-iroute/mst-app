@@ -175,28 +175,28 @@ public $successStatus = 200;
           if($results->contains('reason_id', $reason_id)){
             if($messagesCount==1){
                   $activity_message[] = ['message'=>"You ".$user_activity_message['you']."",'icon'=>$user_activity_message['icon']];
-                  //"You ".$user_activity_message['you']."";
+                  
             }elseif($messagesCount==2){
                   $oth=$messagesCount-1;
                   $activity_message[] = ['message'=>"You and $oth other ".$user_activity_message['you_1'],'icon'=>$user_activity_message['icon']];
-                  //"You and $oth other ".$user_activity_message['you_1'];
+                  
             }else{
                   $oth=$messagesCount-1;
                   $activity_message[] = ['message'=>"You and $oth other's ".$user_activity_message['you_o'],'icon'=>$user_activity_message['icon']];
-                  //"You and $oth other's ".$user_activity_message['you_o'];
+                  
             }
           } else {
               if($messagesCount==1){
                 if($user_activity_message['single']=="bookmarked this"){
                     $activity_message[] = ['message'=>"1 person ".$user_activity_message['single']."",'icon'=>$user_activity_message['icon']];
-                    //"1 person ".$user_activity_message['single']."";  
+                     
                 } else {
                     $activity_message[] = ['message'=>"1 person ".$user_activity_message['single']."",'icon'=>$user_activity_message['icon']];
-                    //"1 person ".$user_activity_message['single']."";
+                    
                 }   
               } else {
                 $activity_message[] =  ['message'=>$messagesCount." people  ".$user_activity_message['single_o'],'icon'=>$user_activity_message['icon']];
-                //$messagesCount." people  ".$user_activity_message['single_o'];
+                
               }
             } 
           }
