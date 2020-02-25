@@ -77,6 +77,9 @@ class UserPromotionController extends Controller
                                     $months = floor(($diff - $years * 365*60*60*24) / (30*60*60*24));
                                     $days = floor(($diff - $years * 365*60*60*24 - $months*30*60*60*24)/ (60*60*24));
 
+                                    $arr['userId'] =$user_id;
+                                    $arr['vendor_id'] =$vendor_id;
+                                    $arr['promotion_id'] =$promotion_id;
                                     $arr['vendor_company_logo'] =$sql_promotion->vendor_company_logo;
                                     $arr['vendor_company_name'] =$sql_promotion->vendor_company_name;
                                     $arr['event_title'] = $sql_promotion_details->event_title;
