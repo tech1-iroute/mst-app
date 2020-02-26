@@ -12,6 +12,7 @@ use App\SubCategory;
 use App\CategoryActivity; 
 use App\GiftPreference; 
 use App\Customer;
+use App\UserVendor;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Hash;
 use Validator;
@@ -29,18 +30,11 @@ class MyVendorController extends Controller
         public function getMyVendor(){
         $user_id = Auth::id();
         $vendorArray = array();
-        /*$sql_user_act = DB::table('tbl_user_activity')
-                    ->join('tbl_user', 'tbl_user_activity.user_id', '=', 'tbl_user.pid')
-                    ->select('tbl_user_activity.*', 'tbl_user.*')
-                    ->where('tbl_user_activity.product_id','=',$pid)
-                    ->where('tbl_user_activity.reason_id','=',$reason_id) 
-                    ->get();*/
-        //$sql="SELECT vdr.vendor_id,vdr.seo_url, vdr.vendor_fname, vdr.vendor_company_logo, vdr.brandBanner, vdr.vendor_company_name,cust.customer_id, cust.customer_email, cust.mst_id, cust.mst_genie, cust.cron_data, cust.cron_request_status, cust.calendar_permission,usr_vdr.allow_feed,usr_vdr.request_accepted FROM tbl_customer cust, tbl_user_vendor usr_vdr,tbl_vendor vdr WHERE vdr.vendor_id = usr_vdr.vendor_id AND  cust.customer_id = usr_vdr.customer_id AND usr_vdr.user_id = $userId ";
-
+       
         $sql_my_vendor = DB::table('tbl_user_vendor')
                     ->join('tbl_vendor', 'tbl_user_vendor.vendor_id', '=', 'tbl_vendor.vendor_id')
                     ->join('tbl_customer', 'tbl_user_vendor.customer_id', '=', 'tbl_customer.customer_id')
-                    ->select('tbl_user_vendor.*', 'tbl_vendor.*', 'tbl_customer.*')
+                    ->select('tbl_user_vendor.allow_feed', 'tbl_user_vendor.request_accepted', 'tbl_vendor.*', 'tbl_customer.customer_id', 'tbl_customer.customer_email', 'tbl_customer.mst_id', 'tbl_customer.mst_genie')
                     ->where('tbl_user_vendor.user_id','=',$user_id)
                     ->where('tbl_user_vendor.request_accepted','=','yes')
                     ->get();
@@ -49,6 +43,8 @@ class MyVendorController extends Controller
             $arr = array();
             foreach($sql_my_vendor as $list){
 
+                $arr['customer_id'] = $list->customer_id;
+                $arr['user_id'] = $user_id;
                 $arr['vendor_id'] =   $list->vendor_id;
                 $arr['vendor_personaName'] =   $list->vendor_personaName;
                 $arr['request_accepted'] =   $list->request_accepted;
@@ -68,13 +64,6 @@ class MyVendorController extends Controller
                 if($list->request_accepted == 'yes'){
                     $arr['companyView'] =   'View';
                 }
-                /*if(is_null($arr['request_accepted'])){ 
-                //if($list->request_accepted == null){ 
-                    $arr['companyYes'] =   '<i class="fa fa-check" aria-hidden="true"></i>';
-                    $arr['companyNo'] =   '<i class="fa fa-close" aria-hidden="true"></i>';
-                }elseif($list->request_accepted == 'yes'){
-                    $arr['companyView'] =   'View';
-                }*/
                 $vendorArray[]=$arr;
 
             }
@@ -95,7 +84,8 @@ class MyVendorController extends Controller
         $sql_my_vendor = DB::table('tbl_user_vendor')
                     ->join('tbl_vendor', 'tbl_user_vendor.vendor_id', '=', 'tbl_vendor.vendor_id')
                     ->join('tbl_customer', 'tbl_user_vendor.customer_id', '=', 'tbl_customer.customer_id')
-                    ->select('tbl_user_vendor.*', 'tbl_vendor.*', 'tbl_customer.*')
+                    ->select('tbl_user_vendor.allow_feed', 'tbl_user_vendor.request_accepted', 'tbl_vendor.*', 
+                        'tbl_customer.customer_id', 'tbl_customer.customer_email', 'tbl_customer.mst_id', 'tbl_customer.mst_genie')
                     ->where('tbl_user_vendor.user_id','=',$user_id)
                     ->where('tbl_user_vendor.request_accepted','=',null)
                     ->get();
@@ -104,6 +94,8 @@ class MyVendorController extends Controller
             $arr = array();
             foreach($sql_my_vendor as $list){
 
+                $arr['customer_id'] = $list->customer_id;
+                $arr['user_id'] = $user_id;
                 $arr['vendor_id'] =   $list->vendor_id;
                 $arr['vendor_personaName'] =   $list->vendor_personaName;
                 $arr['request_accepted'] =   $list->request_accepted;
@@ -120,11 +112,8 @@ class MyVendorController extends Controller
 
                 $arr['companyName'] =   $list->vendor_company_name;
                 
-                /*if($list->request_accepted == 'yes'){
-                    $arr['companyView'] =   'View';
-                }*/
-                if(is_null($arr['request_accepted'])){ 
-                //if($list->request_accepted == null){ 
+                
+                if(is_null($arr['request_accepted'])){  
                     $arr['companyYes'] =   '<i class="fa fa-check" aria-hidden="true"></i>';
                     $arr['companyNo'] =   '<i class="fa fa-close" aria-hidden="true"></i>';
                 }elseif($list->request_accepted == 'yes'){
@@ -140,5 +129,60 @@ class MyVendorController extends Controller
         $response_array['data']=array('vendor_details'=>$vendorArray);
         return response()->json(['response' => $response_array], $this-> successStatus);
         }
+
+
+
+        public function acceptMyVendor(Request $request){
+
+        $input = $request->all();
+        $user_id = $input['user_id'];
+        $vendor_id = $input['vendor_id'];
+        $customer_id = $input['customer_id'];
+        $request_accepted = $input['request_accepted'];
+        $allow_feed = $request_accepted;
+
+        $UpdateDetails = UserVendor::where('customer_id', $customer_id)->where('user_id', $user_id)->where('vendor_id', $vendor_id)->update([
+           'request_accepted' => $request_accepted,
+           'allow_feed' => $allow_feed
+        ]);
+        if($UpdateDetails){
+            $response_array['status']='success';
+            $response_array['response_message']='Record Updated.';
+            return response()->json(['response' => $response_array], $this-> successStatus);
+        } else {
+            $response_array['status']='fail';
+            $response_array['response_message']='There is issues related accept this request.';
+            return response()->json(['response' => $response_array], $this-> successStatus);
+
+        }
+        
+      }
+
+
+      public function rejectMyVendor(Request $request){
+
+        $input = $request->all();
+        $user_id = $input['user_id'];
+        $vendor_id = $input['vendor_id'];
+        $customer_id = $input['customer_id'];
+        $request_accepted = $input['request_accepted'];
+        $allow_feed = $request_accepted;
+
+        $UpdateDetails = UserVendor::where('customer_id', $customer_id)->where('user_id', $user_id)->where('vendor_id', $vendor_id)->update([
+           'request_accepted' => $request_accepted,
+           'allow_feed' => $allow_feed
+        ]);
+        if($UpdateDetails){
+            $response_array['status']='success';
+            $response_array['response_message']='Record Updated.';
+            return response()->json(['response' => $response_array], $this-> successStatus);
+        } else {
+            $response_array['status']='fail';
+            $response_array['response_message']='There is issues related accept this request.';
+            return response()->json(['response' => $response_array], $this-> successStatus);
+
+        }
+        
+      }
      
 }
