@@ -134,11 +134,16 @@ public $successStatus = 200;
 
         //$arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->take(1)->get(['cid','comment','user_id']);
         
+        /*$arr['postComments'] = DB::table('comments')
+                ->join('tbl_user', 'comments.user_id', '=', 'tbl_user.pid')
+                ->select('comments.*', 'tbl_user.user_image')
+                ->where('comments.cpid','=',$postValue->pid)
+                ->take(1)->get();*/
         $arr['postComments'] = DB::table('comments')
                 ->join('tbl_user', 'comments.user_id', '=', 'tbl_user.pid')
                 ->select('comments.*', 'tbl_user.user_image')
                 ->where('comments.cpid','=',$postValue->pid)
-                ->take(1)->get();
+                ->get();
         $postArray[]=$arr;
 
       }
