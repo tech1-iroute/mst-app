@@ -110,11 +110,16 @@ class UserPromotionController extends Controller
     }
 
 
-    public function acceptPromotion(Request $request, $id, $vendor_id, $promotion_id){
+    /*public function acceptPromotion(Request $request, $id, $vendor_id, $promotion_id){*/
+    public function acceptPromotion(Request $request){
 
-        $user_id = $id;
-        $vendor_id = $vendor_id;
-        $promotion_id = $promotion_id;
+        //$user_id = $id;
+        //$vendor_id = $vendor_id;
+        //$promotion_id = $promotion_id;
+        $input = $request->all();
+        $user_id = $input['user_id'];
+        $vendor_id = $input['vendor_id'];
+        $promotion_id = $input['promotion_id'];
         $date = Carbon::now();
         $accept_date = $date->format('Y-m-d');
 

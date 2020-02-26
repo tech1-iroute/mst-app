@@ -69,6 +69,8 @@ public $successStatus = 200;
       $post = new Post();
       $user = Auth::user(); 
       $userId = Auth::id();
+      $userDetails = User::find($userId);
+      $userImage =$userDetails->user_image;
       $postArray = array();
       $userVendor = UserVendor::where('user_id','=',$userId)->get(['vendor_id'])->toArray();
       foreach($userVendor as $value){
@@ -87,6 +89,7 @@ public $successStatus = 200;
       //$user_act = array();
       foreach($postDetails as $postValue){
 
+        $arr['userImage'] = $userImage;
         $arr['pid'] = $postValue->pid;
         $arr['prod_name'] = $postValue->prod_name;
         $arr['prod_desc'] = $postValue->prod_desc;
@@ -222,6 +225,8 @@ public $successStatus = 200;
       $post = new Post();
       $user = Auth::user(); 
       $userId = Auth::id();
+      $userDetails = User::find($userId);
+      $userImage =$userDetails->user_image;
       $postArray = array();
       $relatedPostArray = array();
   
@@ -230,6 +235,7 @@ public $successStatus = 200;
         $arr = array();
         foreach($postDetails as $postValue){
 
+          $arr['userImage'] = $userImage;
           $arr['pid'] = $postValue->pid;
           $arr['prod_name'] = $postValue->prod_name;
           $arr['prod_desc'] = $postValue->prod_desc;
@@ -259,7 +265,12 @@ public $successStatus = 200;
           $arr['mainCategory'] = MainCategory::find($postValue->product_interest_new);
           $arr['subCategory'] = SubCategory::find($postValue->user_interest);
           $arr['Activities'] = CategoryActivity::where('interest_id','=',$postValue->product_interest_new)->where('category_id','=',$postValue->user_interest)->orWhere('category_id','=',0)->where('status','=',1)->get(['reason_id','reason_name','icon','interest_id',DB::raw($postValue->pid.' as pid')]);
-          $arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
+          //$arr['postComments'] = PostComments::where('cpid','=',$postValue->pid)->get(['cid','comment','user_id']);
+          $arr['postComments'] = DB::table('comments')
+                ->join('tbl_user', 'comments.user_id', '=', 'tbl_user.pid')
+                ->select('comments.*', 'tbl_user.user_image')
+                ->where('comments.cpid','=',$postValue->pid)
+                ->get();
           $arr['postCommentsCount'] = count($arr['postComments']);
           $postArray[]=$arr;
 
