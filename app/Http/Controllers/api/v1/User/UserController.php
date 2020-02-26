@@ -38,7 +38,8 @@ use AuthenticatesUsers;
     public function login(Request $request){ 
 
         $validator = Validator::make($request->all(), [ 
-            'user_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            //'user_mobile' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10',
+            'user_name' => 'required',
             'password' => ['required', 'string', 'min:6'],
         ]);
 
@@ -46,7 +47,8 @@ use AuthenticatesUsers;
             return response()->json(['response'=>$validator->errors()], 401);  
         }
 
-        if(Auth::attempt(['user_mobile' => request('user_mobile'), 'password' => request('password')])){ 
+        /*if(Auth::attempt(['user_mobile' => request('user_mobile'), 'password' => request('password')])){ */
+          if(Auth::attempt([filter_var(request('user_name'), FILTER_VALIDATE_EMAIL) ? 'user_email' : 'user_mobile' => request('user_name'), 'password' => request('password')])){ 
             $user = Auth::user(); 
 
             $token =  $user->createToken('mst-app')-> accessToken; 
